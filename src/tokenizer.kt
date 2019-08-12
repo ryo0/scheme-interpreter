@@ -2,6 +2,8 @@ sealed class Token {
     data class Num(val value: Float) : Token()
     data class Var(val name: String) : Token()
     data class Str(val name: String) : Token()
+    object True : Token()
+    object False : Token()
     object LParen : Token()
     object RParen : Token()
     object Plus : Token()
@@ -23,16 +25,16 @@ sealed class Token {
 }
 
 val symbolHash = mapOf(
-    "+" to Token.Plus,
-    "-" to Token.Minus,
-    "*" to Token.Asterisk,
-    "/" to Token.Slash,
-    "(" to Token.LParen,
-    ")" to Token.RParen,
-    "=" to Token.Equal,
-    "'" to Token.Quote,
-    "<" to Token.LessThan,
-    ">" to Token.GreaterThan
+    '+' to Token.Plus,
+    '-' to Token.Minus,
+    '*' to Token.Asterisk,
+    '/' to Token.Slash,
+    '(' to Token.LParen,
+    ')' to Token.RParen,
+    '=' to Token.Equal,
+    '\'' to Token.Quote,
+    '<' to Token.LessThan,
+    '>' to Token.GreaterThan
 )
 
 val keywordHash = mapOf(
@@ -71,22 +73,37 @@ fun tokenize(inputStr: String): List<Token> {
     var i = 0
     val tokens: MutableList<Token> = mutableListOf()
     while(i < str.count()) {
-        val char = str[i].toString()
+        val char = str[i]
         when(char) {
             in symbolHash.keys -> {
                 val token = symbolHash[char] ?: throw Error()
                 tokens.add(token)
                 i++
             }
-            " ", "\n" -> {
+            ' ', '\n' -> {
                 i++
             }
-            "\"" -> {
+            '"' -> {
                 val strFromIToLast = str.slice(i+1 until str.length)
                 val endString = strFromIToLast.indexOfFirst { it == '"' }
                 val string = strFromIToLast.slice(0 until endString)
                 tokens.add(Token.Str(string))
                 i += string.length+2
+            }
+            '#' -> {
+                if(i+1 < str.length) {
+                    val next = str[i+1]
+                    if (next == 't') {
+                        tokens.add(Token.True)
+                    } else if (next == 'f') {
+                        tokens.add(Token.False)
+                    } else {
+                        throw Error("#を最初につけて良いのは#tか#fだけ ${str.slice(i until str.length)}")
+                    }
+                    i += 2
+                } else {
+                    throw Error("プログラム末尾に#単体")
+                }
             }
             else -> {
                 val strFromIToLast = str.slice(i until str.length)

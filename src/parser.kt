@@ -1,16 +1,18 @@
+fun onlyRParen(tokens: List<Token>): Boolean {
+    return tokens.count() == 1 && tokens.first() is Token.RParen
+}
+
 fun car(tokens: List<Token>): Pair<List<Token>, List<Token>> {
     if(tokens.count() < 2 || tokens[0] == Token.LParen && tokens[1] == Token.RParen) {
         throw Error("carエラー $tokens")
     }
     if(tokens[1] !is Token.LParen) {
-        // (a b c)みたいなの
-
+        // (a b c)みたいな時 // ((a b) c)ではなく
         val rest = tokens.slice(2 until tokens.count())
-        if(rest.count() <= 2) {
-            // かっこだけの時
+        if(onlyRParen(rest)) {
             return listOf(tokens[1]) to listOf()
         } else {
-            return listOf(tokens[1]) to listOf(Token.LParen) + tokens.slice(2 until tokens.count())
+            return listOf(tokens[1]) to listOf(Token.LParen) + rest
         }
     }
     // ((a b c) d e)だったら(a b c)がほしい
@@ -31,8 +33,7 @@ fun car(tokens: List<Token>): Pair<List<Token>, List<Token>> {
         i++
     }
     val rest = tokens.slice(i until tokens.count())
-    if(rest.count() <= 2) {
-        // かっこだけの時
+    if(onlyRParen(rest)) {
         return listOf(tokens[1]) to listOf()
     } else {
         return result to listOf(Token.LParen) + tokens.slice(i until tokens.count())
@@ -44,9 +45,9 @@ fun cdr(tokens: List<Token>): Pair<List<Token>, List<Token>>{
         throw Error("cdrエラー $tokens")
     }
     val restTokens = car(tokens).second
-    if(restTokens.count() == 0) {
-        return listOf(Token.LParen, Token.RParen) to listOf()
-    }
+//    if(restTokens.count() == 0) {
+//        return listOf(Token.LParen, Token.RParen) to listOf()
+//    }
     // (a b c)ならrestTokensは(b c)
 
     var parenCounter = 1
@@ -64,6 +65,9 @@ fun cdr(tokens: List<Token>): Pair<List<Token>, List<Token>>{
         }
         result.add(token)
         i++
+    }
+    if(onlyRParen(restTokens)) {
+        return result to listOf()
     }
     return result to restTokens.slice(i until restTokens.count())
 }

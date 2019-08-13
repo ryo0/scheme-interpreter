@@ -36,12 +36,13 @@ class Main {
             printSExpTokens(cadddr(s).first)
             printSExpTokens(cadddr(s).second)
             val testCode00 = """
-                (define (x a) a)
-                (set! x 2)
-            """.trimIndent()
-//            println(car(tokenize(testCode00)))
-//            println(cdr(tokenize(testCode00)))
-//            println(car(cdr(tokenize(testCode00))))
+                (if (= a 2)
+                    a
+                    2)
+                """.trimIndent()
+            printSExpTokens(cadr(tokenize(testCode00)).first)
+            printSExpTokens(caddr(tokenize(testCode00)).first)
+            printSExpTokens(cadddr(tokenize(testCode00)).first)
             val testCode0 = """
                 (define x 0)
             """.trimIndent()

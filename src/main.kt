@@ -7,7 +7,17 @@ class Main {
                     a
                     2)
                 """.trimIndent()
-            println(parseNodeList(tokenize(testCode00)))
+
+            val nodes0 = parseNodeList(tokenize(testCode00))
+            nodes0.forEach { node ->
+                if(node is Node.Nodes) {
+                    val ns = node.ns
+                    println(car(ns))
+                    println(cadr(ns))
+                    println(caddr(ns))
+                    println(cadddr(ns))
+                }
+             }
 
             val testCode0 = """
                 (define x 0)

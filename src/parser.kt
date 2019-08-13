@@ -1,10 +1,17 @@
 fun car(tokens: List<Token>): Pair<List<Token>, List<Token>> {
-    if(tokens.count() < 2 && tokens.first() != Token.LParen) {
+    if(tokens.count() < 2 || tokens[0] == Token.LParen && tokens[1] == Token.RParen) {
         throw Error("carエラー $tokens")
     }
     if(tokens[1] !is Token.LParen) {
         // (a b c)みたいなの
-        return listOf(tokens[1]) to tokens.slice(2 until tokens.count())
+
+        val rest = tokens.slice(2 until tokens.count())
+        if(rest.count() <= 2) {
+            // かっこだけの時
+            return listOf(tokens[1]) to listOf()
+        } else {
+            return listOf(tokens[1]) to listOf(Token.LParen) + tokens.slice(2 until tokens.count())
+        }
     }
     // ((a b c) d e)だったら(a b c)がほしい
     var parenCounter = 1
@@ -23,7 +30,13 @@ fun car(tokens: List<Token>): Pair<List<Token>, List<Token>> {
         result.add(token)
         i++
     }
-    return result to tokens.slice(i until tokens.count())
+    val rest = tokens.slice(i until tokens.count())
+    if(rest.count() <= 2) {
+        // かっこだけの時
+        return listOf(tokens[1]) to listOf()
+    } else {
+        return result to listOf(Token.LParen) + tokens.slice(i until tokens.count())
+    }
 }
 
 fun cdr(tokens: List<Token>): Pair<List<Token>, List<Token>>{
@@ -31,10 +44,14 @@ fun cdr(tokens: List<Token>): Pair<List<Token>, List<Token>>{
         throw Error("cdrエラー $tokens")
     }
     val restTokens = car(tokens).second
+    if(restTokens.count() == 0) {
+        return listOf(Token.LParen, Token.RParen) to listOf()
+    }
+    // (a b c)ならrestTokensは(b c)
 
     var parenCounter = 1
     var result = mutableListOf<Token>(Token.LParen)
-    var i = 0// (a b c)だったらbから始める
+    var i = 1// restTokensは(b c)。bから始める
     while(i < tokens.count() && parenCounter != 0) {
         val token = restTokens[i]
         when(token) {
@@ -53,8 +70,32 @@ fun cdr(tokens: List<Token>): Pair<List<Token>, List<Token>>{
 
 fun cadr(tokens: List<Token>): Pair<List<Token>, List<Token>>{
     val cdrTokens = cdr(tokens)
-    return car(cdrTokens.first).first to cdrTokens.second
+    val cadr = car(cdrTokens.first)
+    return cadr.first to cadr.second + cdrTokens.second
 }
+
+fun cddr(tokens: List<Token>): Pair<List<Token>, List<Token>> {
+    val cdr = cdr(tokens)
+    return cdr(cdr.first).first to cdr.second
+}
+
+fun cdddr(tokens: List<Token>): Pair<List<Token>, List<Token>> {
+    val cddr = cddr(tokens)
+    return cdr(cddr.first).first to cddr.second
+}
+
+fun caddr(tokens: List<Token>): Pair<List<Token>, List<Token>> {
+    val cddr = cddr(tokens)
+    val caddr = car(cddr.first)
+    return caddr.first to caddr.second + cddr.second
+}
+
+fun cadddr(tokens: List<Token>): Pair<List<Token>, List<Token>> {
+    val cdddr = cdddr(tokens)
+    val cadddr = car(cdddr.first)
+    return cadddr.first to cadddr.second + cdddr.second
+}
+
 
 fun is_self_evaluating(tokens: List<Token>): Boolean {
     val first = tokens.first()
@@ -100,6 +141,11 @@ fun is_pair(tokens: List<Token>): Boolean {
 //
 //
 //fun parseProcedureCall(tokens: List<Token>, operator: SExp?, oprands: List<SExp>): Pair<SExp.ProcedureCall, List<Token>> {
+//
+//}
+
+
+//fun parseIf(tokens: List<Token>): Pair<SExp.If, List<Token>> {
 //
 //}
 

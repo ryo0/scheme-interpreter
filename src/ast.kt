@@ -7,6 +7,6 @@ sealed class SExp {
     data class ProcedureCall(val op: String, val SExps: List<SExp>) : SExp()
     data class Var(val name: String) : SExp()
     data class Num(val value: Float) : SExp()
-//    data class If(val cond: SExp, val ifExp: SExp, val elseExp: SExp) : SExp()
+    data class If(val cond: SExp, val ifExp: SExp, val elseExp: SExp) : SExp()
 //    data class Let(val names: List<Atom>, val values: List<SExp>, val body: List<SExp>)
 }

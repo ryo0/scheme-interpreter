@@ -69,7 +69,6 @@ fun removeComments(str: String): String {
 
 fun tokenize(inputStr: String): List<Token> {
     val str = removeComments(inputStr)
-    println(str)
     var i = 0
     val tokens: MutableList<Token> = mutableListOf()
     while(i < str.count()) {

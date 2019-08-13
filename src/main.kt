@@ -1,25 +1,6 @@
 class Main {
     companion object {
         @JvmStatic fun main(args: Array<String>) {
-            println(tokenize("""
-                (define x 100)
-                (define input-prompt ";;; M-Eval input:")
-                (define output-prompt ";;; M-Eval value:")
-                (define (expand-clauses clauses)
-                    (if (null? clauses)
-                    #f
-                    (let ((first (car clauses))
-                        (rest (cdr clauses)))
-                    (if (cond-else-clause? first)
-                        (if (null? rest)
-                            (sequence->exp (cond-actions first))
-                            (error "ELSE clause isn't last -- COND->IF"
-                        clauses))
-                        (make-if (cond-predicate first)
-                            (sequence->exp (cond-actions first))
-                            (expand-clauses rest))))))
-            """.trimIndent()))
-
             val testcode1111 = """
 (define (fixed-point f first-guess)
   (define (close-enough? v1 v2)
@@ -31,11 +12,12 @@ class Main {
           (try next))))
   (try first-guess))
   """
+            println(car(tokenize("((a b c) d e)")))
+            println(cdr(tokenize("((a b c) d e)")))
             val testCode00 = """
                 (define (x a) a)
                 (set! x 2)
             """.trimIndent()
-            println(tokenize(testCode00))
             println(car(tokenize(testCode00)))
             println(cdr(tokenize(testCode00)))
 //            println(car(cdr(tokenize(testCode00))))

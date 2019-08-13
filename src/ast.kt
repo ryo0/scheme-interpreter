@@ -2,6 +2,6 @@
 
 //["define", ["a", "x"], "a" ]のようにList<Node>にマッピングしていく
 sealed class Node {
-    data class Leaf(val l: String): Node()
+    data class Leaf(val l: Token): Node()
     data class Nodes(val ns: List<Node>): Node()
 }

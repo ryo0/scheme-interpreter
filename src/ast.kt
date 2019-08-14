@@ -4,10 +4,15 @@ sealed class Node {
     data class Nodes(val ns: List<Node>): Node()
 }
 
-data class Program(val p: List<Exp>)
+data class Program(val p: List<Form>)
 
 enum class Ops {
     Plus, Minus, Asterisk, Slash, Equal, LessThan, GreaterThan
+}
+
+sealed class Form{
+    data class _Exp(val e: Exp) : Form()
+    data class _Definition(val v: Exp.Var, val exp: Exp) : Form()
 }
 
 sealed class Exp {
@@ -16,4 +21,5 @@ sealed class Exp {
     data class Num(val value: Float): Exp()
     data class ProcedureCall(val operator: Exp, val operands: List<Exp>): Exp()
     data class If(val cond: Exp, val consequence: Exp, val alternative: Exp?): Exp()
+    data class Lambda(val vars: List<Var>, val body: List<Form>): Exp()
 }

@@ -12,6 +12,9 @@ fun car(nodes: List<Node>): Node {
 }
 
 fun cdr(nodes: List<Node>): List<Node> {
+    if (nodes.count() == 0) {
+        throw Error("cdr $nodes")
+    }
     return nodes.tail
 }
 
@@ -33,6 +36,10 @@ fun cdddr(nodes: List<Node>): List<Node>{
 
 fun cadddr(nodes: List<Node>): Node {
     return car(cdddr(nodes))
+}
+
+fun isPair(node: Node): Boolean {
+    return node is Node.Nodes
 }
 
 fun parseNodeList(tokens: List<Token>) : List<Node> {
@@ -68,12 +75,40 @@ fun parseNodeListSub(acm: List<Node>, tokens: List<Token>): Pair<List<Node>, Lis
 }
 
 fun parseProgram(nodes: List<Node>): Program{
-    val acm = mutableListOf<Exp>()
+    val acm = mutableListOf<Form>()
     for (node in nodes) {
-        acm.add(parseExp(node))
+        acm.add(parseForm(node))
     }
     return Program(acm)
 }
+
+fun parseForm(node: Node) : Form {
+    when(node) {
+        is Node.Leaf -> {
+            throw Error("構文エラー $node")
+        }
+        is Node.Nodes -> {
+            when(val first = node.ns[0]){
+                is Node.Leaf -> {
+                    if (first.l is Token.Define) {
+                        return parseDefine(node)
+                    } else {
+                        return Form._Exp(parseExp(node))
+                    }
+                }
+                else ->  {
+                    throw Error("構文エラー $node")
+                }
+            }
+        }
+    }
+}
+// (define (x v1 v2 v3) 1)
+// (define x 0)
+fun parseDefine(node: Node): Form._Definition {
+
+}
+
 
 fun parseExp(node: Node): Exp {
     when(node) {

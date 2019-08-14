@@ -19,15 +19,15 @@ class Main {
             val nodes1 = parseNodeList(tokenize(testCode01))
             println(parseProgram(nodes1))
 
-//            val testCode0 = """
-//                (define x 0)
-//            """.trimIndent()
-//
-//            println(parseNodeList(tokenize(testCode0)))
-//
-//            val testCode1 = """
-//                (define x (+ 1 1))
-//            """.trimIndent()
+            val testCode0 = """
+                (define x 0)
+            """.trimIndent()
+
+            println(parseNodeList(tokenize(testCode0)))
+
+            val testCode1 = """
+                (define x (+ 1 1))
+            """.trimIndent()
 //
 //            println(parseNodeList(tokenize(testCode1)))
 //

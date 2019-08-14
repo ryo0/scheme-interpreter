@@ -22,7 +22,7 @@ fun cadr(nodes: List<Node>): Node {
     return car(cdr(nodes))
 }
 
-fun cddr(nodes: List<Node>): List<Node>{
+fun cddr(nodes: List<Node>): List<Node> {
     return cdr(cdr(nodes))
 }
 
@@ -30,7 +30,7 @@ fun caddr(nodes: List<Node>): Node {
     return car(cddr(nodes))
 }
 
-fun cdddr(nodes: List<Node>): List<Node>{
+fun cdddr(nodes: List<Node>): List<Node> {
     return cdr(cddr(nodes))
 }
 
@@ -42,7 +42,7 @@ fun isPair(node: Node): Boolean {
     return node is Node.Nodes
 }
 
-fun parseNodeList(tokens: List<Token>) : List<Node> {
+fun parseNodeList(tokens: List<Token>): List<Node> {
     return parseNodeListSub(listOf(), tokens).first
 }
 
@@ -56,11 +56,11 @@ val OperandsHash = mapOf(
     Token.GreaterThan to Ops.GreaterThan
 )
 
-fun parseNodeListSub(acm: List<Node>, tokens: List<Token>): Pair<List<Node>, List<Token>>{
-    if(tokens.count() == 0)  {
+fun parseNodeListSub(acm: List<Node>, tokens: List<Token>): Pair<List<Node>, List<Token>> {
+    if (tokens.count() == 0) {
         return acm to tokens
     }
-    when(val first = tokens.head) {
+    when (val first = tokens.head) {
         is Token.LParen -> {
             val (nodes, rest) = parseNodeListSub(listOf(), tokens.tail)
             return parseNodeListSub(acm + Node.Nodes(nodes), rest)
@@ -74,7 +74,7 @@ fun parseNodeListSub(acm: List<Node>, tokens: List<Token>): Pair<List<Node>, Lis
     }
 }
 
-fun parseProgram(nodes: List<Node>): Program{
+fun parseProgram(nodes: List<Node>): Program {
     val acm = mutableListOf<Form>()
     for (node in nodes) {
         acm.add(parseForm(node))
@@ -82,13 +82,13 @@ fun parseProgram(nodes: List<Node>): Program{
     return Program(acm)
 }
 
-fun parseForm(node: Node) : Form {
-    when(node) {
+fun parseForm(node: Node): Form {
+    when (node) {
         is Node.Leaf -> {
             return Form._Exp(parseExp(node))
         }
         is Node.Nodes -> {
-            when(val first = node.ns[0]){
+            when (val first = node.ns[0]) {
                 is Node.Leaf -> {
                     if (first.l is Token.Define) {
                         return parseDefine(node)
@@ -96,28 +96,29 @@ fun parseForm(node: Node) : Form {
                         return Form._Exp(parseExp(node))
                     }
                 }
-                else ->  {
+                else -> {
                     throw Error("構文エラー $node")
                 }
             }
         }
     }
 }
+
 // (define (x v1 v2 v3) 1)
 // (define x 0)
 fun parseDefine(node: Node): Form._Definition {
-    if(node !is Node.Nodes) {
+    if (node !is Node.Nodes) {
         throw Error("Leafがdefineに来てる $node")
     }
     val ns = node.ns
     val cadr = cadr(ns)
-    if(cadr is Node.Nodes) {
+    if (cadr is Node.Nodes) {
         // (define (a x) x)
         val name = parseExp(car(cadr.ns))
         val params = parseVarList(cdr(cadr.ns))
         val body = parseProgram(cddr(ns))
         val lambda = Exp.Lambda(params, body)
-        if(name !is Exp.Var) {
+        if (name !is Exp.Var) {
             throw Error("構文エラー、defineの名前が変数でない $name $node")
         }
         return Form._Definition(name, lambda)
@@ -125,7 +126,7 @@ fun parseDefine(node: Node): Form._Definition {
         // (define a 2)
         val name = parseExp(cadr(ns))
         val body = parseExp(caddr(ns))
-        if(name !is Exp.Var) {
+        if (name !is Exp.Var) {
             throw Error("構文エラー、defineの名前が変数でない $name $node")
         }
         return Form._Definition(name, body)
@@ -138,7 +139,7 @@ fun parseVarList(nodes: List<Node>): List<Exp.Var> {
 //    (x y z)
     val acm = mutableListOf<Exp.Var>()
     nodes.forEach {
-        if(it is Node.Leaf && it.l is Token.Var) {
+        if (it is Node.Leaf && it.l is Token.Var) {
             acm.add(Exp.Var(it.l.name))
         } else {
             throw Error()
@@ -148,9 +149,9 @@ fun parseVarList(nodes: List<Node>): List<Exp.Var> {
 }
 
 fun parseExp(node: Node): Exp {
-    when(node) {
+    when (node) {
         is Node.Leaf -> {
-            when(val l = node.l) {
+            when (val l = node.l) {
                 is Token.Num -> {
                     return Exp.Num(l.value)
                 }
@@ -167,10 +168,10 @@ fun parseExp(node: Node): Exp {
             }
         }
         is Node.Nodes -> {
-            when(val first = node.ns[0]) {
-                is Node.Leaf ->  {
-                    when(val l = first.l) {
-                        is Token.If ->{
+            when (val first = node.ns[0]) {
+                is Node.Leaf -> {
+                    when (val l = first.l) {
+                        is Token.If -> {
                             return parseIf(node)
                         }
                         is Token.Lambda -> {
@@ -193,21 +194,21 @@ fun parseIf(node: Node.Nodes): Exp.If {
     val ns = node.ns
     val cadr = cadr(ns)
     val caddr = caddr(ns)
-    if(cdddr(ns).count() != 0) {
+    if (cdddr(ns).count() != 0) {
         return Exp.If(parseExp(cadr), parseExp(caddr), parseExp(cadddr(ns)))
     } else {
         return Exp.If(parseExp(cadr), parseExp(caddr), null)
     }
 }
 
-fun parseProceduteCall(node: Node.Nodes) : Exp.ProcedureCall {
+fun parseProceduteCall(node: Node.Nodes): Exp.ProcedureCall {
     val ns = node.ns
     val operator = car(ns)
     val operands = cdr(ns)
     return Exp.ProcedureCall(parseExp(operator), operands.map { parseExp(it) })
 }
 
-fun parseLambda(node: Node.Nodes) : Exp.Lambda {
+fun parseLambda(node: Node.Nodes): Exp.Lambda {
 //    (lambda (a x) x)
     val ns = node.ns
     val cadr = (cadr(ns)) as? Node.Nodes ?: throw Error("構文エラー: lambdaに変数/引数のカッコがない $node")

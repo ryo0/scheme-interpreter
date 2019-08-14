@@ -1,7 +1,7 @@
 class Main {
     companion object {
-        @JvmStatic fun main(args: Array<String>) {
-
+        @JvmStatic
+        fun main(args: Array<String>) {
             val testCode00 = """
                 (if (= a 2)
                     a

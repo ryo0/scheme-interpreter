@@ -10,17 +10,17 @@ sealed class Token {
     object Minus : Token()
     object Asterisk : Token()
     object Slash : Token()
-    object Equal: Token()
-    object Quote: Token()
+    object Equal : Token()
+    object Quote : Token()
     object LessThan : Token()
-    object GreaterThan: Token()
+    object GreaterThan : Token()
     object Define : Token()
     object Lambda : Token()
-    object Set: Token()
-    object Cond: Token()
-    object If: Token()
-    object Else: Token()
-    object Let: Token()
+    object Set : Token()
+    object Cond : Token()
+    object If : Token()
+    object Else : Token()
+    object Let : Token()
 
 }
 
@@ -57,7 +57,7 @@ fun removeComments(str: String): String {
             val nextLine = str.slice(i until str.length).indexOfFirst { it == '\n' } + 1
             i += nextLine
         } else {
-            if(char == '"') {
+            if (char == '"') {
                 inDoubleQuote = !inDoubleQuote
             }
             result += char
@@ -71,9 +71,9 @@ fun tokenize(inputStr: String): List<Token> {
     val str = removeComments(inputStr)
     var i = 0
     val tokens: MutableList<Token> = mutableListOf()
-    while(i < str.count()) {
+    while (i < str.count()) {
         val char = str[i]
-        when(char) {
+        when (char) {
             in symbolHash.keys -> {
                 val token = symbolHash[char] ?: throw Error()
                 tokens.add(token)
@@ -83,15 +83,15 @@ fun tokenize(inputStr: String): List<Token> {
                 i++
             }
             '"' -> {
-                val strFromIToLast = str.slice(i+1 until str.length)
+                val strFromIToLast = str.slice(i + 1 until str.length)
                 val endString = strFromIToLast.indexOfFirst { it == '"' }
                 val string = strFromIToLast.slice(0 until endString)
                 tokens.add(Token.Str(string))
-                i += string.length+2
+                i += string.length + 2
             }
             '#' -> {
-                if(i+1 < str.length) {
-                    val next = str[i+1]
+                if (i + 1 < str.length) {
+                    val next = str[i + 1]
                     if (next == 't') {
                         tokens.add(Token.True)
                     } else if (next == 'f') {
@@ -107,8 +107,8 @@ fun tokenize(inputStr: String): List<Token> {
             else -> {
                 val strFromIToLast = str.slice(i until str.length)
                 val atom = getAtom(strFromIToLast)
-                if(atom.filter { !it.isDigit() }.isEmpty()) {
-                    if(atom.length >= 2 && atom[0] == '0') {
+                if (atom.filter { !it.isDigit() }.isEmpty()) {
+                    if (atom.length >= 2 && atom[0] == '0') {
                         throw Error("読めないトークン: 0始まりの2桁以上の数 $atom")
                     } else {
                         tokens.add(Token.Num(atom.toFloat()))
@@ -127,6 +127,6 @@ fun tokenize(inputStr: String): List<Token> {
 }
 
 fun getAtom(str: String): String {
-    val i = str.indexOfFirst { it == ' ' || it == '\n' || it == '(' || it == ')'}
+    val i = str.indexOfFirst { it == ' ' || it == '\n' || it == '(' || it == ')' }
     return str.slice(0 until i)
 }

@@ -29,10 +29,10 @@ val symbolHash = mapOf(
     '-' to Token.Minus,
     '*' to Token.Asterisk,
     '/' to Token.Slash,
+    '\'' to Token.Quote,
     '(' to Token.LParen,
     ')' to Token.RParen,
     '=' to Token.Equal,
-    '\'' to Token.Quote,
     '<' to Token.LessThan,
     '>' to Token.GreaterThan
 )
@@ -76,9 +76,19 @@ fun tokenize(inputStr: String): List<Token> {
         val char = str[i]
         when (char) {
             in symbolHash.keys -> {
-                val token = symbolHash[char] ?: throw Error()
-                tokens.add(token)
-                i++
+                if (char == '\'') {
+                    val strFromIToLast = str.slice(i until str.length)
+                    val atom = getAtom(strFromIToLast)
+                    tokens.add(Token.LParen)
+                    tokens.add(Token.Quote)
+                    tokens.add(Token.Var(atom.drop(1)))
+                    tokens.add(Token.RParen)
+                    i += atom.length + 1
+                } else {
+                    val token = symbolHash[char] ?: throw Error()
+                    tokens.add(token)
+                    i++
+                }
             }
             ' ', '\n' -> {
                 i++
@@ -128,6 +138,10 @@ fun tokenize(inputStr: String): List<Token> {
 }
 
 fun getAtom(str: String): String {
-    val i = str.indexOfFirst { it == ' ' || it == '\n' || it == '(' || it == ')' }
+    val i = if (str.first() == '\'') {
+        str.indexOfFirst { it == ' ' || it == '\n' }
+    } else {
+        str.indexOfFirst { it == ' ' || it == '\n' || it == '(' || it == ')' }
+    }
     return str.slice(0 until i)
 }

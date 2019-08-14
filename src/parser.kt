@@ -172,11 +172,14 @@ fun parseExp(node: Node): Exp {
                     return Exp.Op(op)
                 }
                 else -> {
-                    throw Error()
+                    throw Error("$l")
                 }
             }
         }
         is Node.Nodes -> {
+            if (node.ns.count() == 0) {
+                throw Error("$node")
+            }
             when (val first = node.ns[0]) {
                 is Node.Leaf -> {
                     when (first.l) {
@@ -221,6 +224,7 @@ fun parseIf(node: Node.Nodes): Exp.If {
     val ns = node.ns
     val cadr = cadr(ns)
     val caddr = caddr(ns)
+    println(ns.toString())
     if (cdddr(ns).count() != 0) {
         return Exp.If(parseExp(cadr), parseExp(caddr), parseExp(cadddr(ns)))
     } else {

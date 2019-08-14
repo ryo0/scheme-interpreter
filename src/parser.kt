@@ -171,21 +171,13 @@ fun parseExp(node: Node): Exp {
                 is Node.Leaf ->  {
                     when(val l = first.l) {
                         is Token.If ->{
-                            val ns = node.ns
-                            val cadr = cadr(ns)
-                            val caddr = caddr(ns)
-                            if(cdddr(ns).count() != 0) {
-                                return Exp.If(parseExp(cadr), parseExp(caddr), parseExp(cadddr(ns)))
-                            } else {
-                                return Exp.If(parseExp(cadr), parseExp(caddr), null)
-                            }
-
+                            return parseIf(node)
+                        }
+                        is Token.Lambda -> {
+                            return parseLambda(node)
                         }
                         else -> {
-                            val ns = node.ns
-                            val operator = car(ns)
-                            val operands = cdr(ns)
-                            return Exp.ProcedureCall(parseExp(operator), operands.map { parseExp(it) })
+                            return parseProceduteCall(node)
                         }
                     }
                 }
@@ -195,4 +187,31 @@ fun parseExp(node: Node): Exp {
             }
         }
     }
+}
+
+fun parseIf(node: Node.Nodes): Exp.If {
+    val ns = node.ns
+    val cadr = cadr(ns)
+    val caddr = caddr(ns)
+    if(cdddr(ns).count() != 0) {
+        return Exp.If(parseExp(cadr), parseExp(caddr), parseExp(cadddr(ns)))
+    } else {
+        return Exp.If(parseExp(cadr), parseExp(caddr), null)
+    }
+}
+
+fun parseProceduteCall(node: Node.Nodes) : Exp.ProcedureCall {
+    val ns = node.ns
+    val operator = car(ns)
+    val operands = cdr(ns)
+    return Exp.ProcedureCall(parseExp(operator), operands.map { parseExp(it) })
+}
+
+fun parseLambda(node: Node.Nodes) : Exp.Lambda {
+//    (lambda (a x) x)
+    val ns = node.ns
+    val cadr = (cadr(ns)) as? Node.Nodes ?: throw Error("構文エラー: lambdaに変数/引数のカッコがない $node")
+    val paramList = parseVarList(cadr.ns)
+    val body = parseProgram(cddr(ns))
+    return Exp.Lambda(paramList, body)
 }

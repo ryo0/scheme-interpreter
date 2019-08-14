@@ -53,6 +53,12 @@ class Main {
             """.trimIndent()
             val node6 = parseNodeList(tokenize(testCode4))
             println(parseProgram(node6))
+
+            val testCode5 = """
+                (lambda (v1 v2 v3) (+ 1 (* 2 3)))
+            """.trimIndent()
+            val node7 = parseNodeList(tokenize(testCode5))
+            println(parseProgram(node7))
         }
     }
 }

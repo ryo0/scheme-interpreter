@@ -44,7 +44,8 @@ val keywordHash = mapOf(
     "cond" to Token.Cond,
     "if" to Token.If,
     "else" to Token.Else,
-    "let" to Token.Let
+    "let" to Token.Let,
+    "quote" to Token.Quote
 )
 
 fun removeComments(str: String): String {

@@ -88,16 +88,16 @@ fun parseForm(node: Node): Form {
             return Form._Exp(parseExp(node))
         }
         is Node.Nodes -> {
-            when (val first = node.ns[0]) {
+            return when (val first = node.ns[0]) {
                 is Node.Leaf -> {
                     if (first.l is Token.Define) {
-                        return parseDefine(node)
+                        parseDefine(node)
                     } else {
-                        return Form._Exp(parseExp(node))
+                        Form._Exp(parseExp(node))
                     }
                 }
                 else -> {
-                    return Form._Exp(parseExp(node))
+                    Form._Exp(parseExp(node))
                 }
             }
         }
@@ -155,6 +155,9 @@ fun parseExp(node: Node): Exp {
                 is Token.Num -> {
                     return Exp.Num(l.value)
                 }
+                is Token.Str -> {
+                    return Exp.Symbol(l.name)
+                }
                 is Token.Var -> {
                     return Exp.Var(l.name)
                 }
@@ -176,9 +179,27 @@ fun parseExp(node: Node): Exp {
         is Node.Nodes -> {
             when (val first = node.ns[0]) {
                 is Node.Leaf -> {
-                    when (val l = first.l) {
+                    when (first.l) {
+                        is Token.Num -> {
+                            return Exp.Num(first.l.value)
+                        }
+                        is Token.Var -> {
+                            return Exp.Var(first.l.name)
+                        }
+                        is Token.Str -> {
+                            return Exp.Symbol(first.l.name)
+                        }
                         is Token.If -> {
                             return parseIf(node)
+                        }
+                        is Token.Cond -> {
+                            return parseCond(node)
+                        }
+                        is Token.Quote -> {
+                            return parseQuote(node)
+                        }
+                        is Token.Set -> {
+                            return parseSet(node)
                         }
                         is Token.Lambda -> {
                             return parseLambda(node)
@@ -205,6 +226,90 @@ fun parseIf(node: Node.Nodes): Exp.If {
     } else {
         return Exp.If(parseExp(cadr), parseExp(caddr), null)
     }
+}
+
+fun parseCond(node: Node.Nodes): Exp.Cond {
+//    (cond (a 1)
+//          (b 2)
+//          (else 3)
+//          )
+    var elseExp: Exp? = null
+    val ccs = mutableListOf<CondClause>()
+    val cdr = cdr(node.ns)
+    cdr.forEach {
+        it as? Node.Nodes ?: throw Error("構文エラー: cond $node")
+        val car = car(it.ns)
+        if (car is Node.Leaf && car.l is Token.Else) {
+            elseExp = parseExp(cadr(it.ns))
+        } else {
+            ccs.add(parseCondClause(it))
+        }
+    }
+    return Exp.Cond(ccs, elseExp)
+}
+
+fun parseCondClause(node: Node.Nodes): CondClause {
+//    (cond (a 1)
+//          (b 2)
+//          (else 3)
+//          )
+//    の中の(a (+ 1 2))
+    val car = parseExp(car(node.ns))
+    val cdr = cdr(node.ns).map { parseExp(it) }
+    return CondClause(car, cdr)
+}
+
+fun parseSet(node: Node.Nodes): Exp.Set {
+    // (set! x (+ 1 1))
+    val variable = parseExp(cadr(node.ns)) as? Exp.Var ?: throw Error("set!の変数が変数じゃない $node")
+    val value = parseExp(caddr(node.ns))
+    return Exp.Set(variable, value)
+}
+
+fun parseQuote(node: Node.Nodes): Exp.Quote {
+    val data = parseDatum(cadr(node.ns))
+    return Exp.Quote(data)
+}
+
+fun parseDatum(node: Node): Datum {
+    //    (quote '(1 2 3 (4 5) 6))
+    when (node) {
+        is Node.Leaf -> {
+            return parseDatumNotLst(node)
+        }
+        is Node.Nodes -> {
+            return parseDatumLst(node)
+        }
+    }
+}
+
+fun parseDatumNotLst(leaf: Node.Leaf): Datum {
+    return when (val leaf = leaf.l) {
+        is Token.Str -> {
+            Datum.Symbol(leaf.name)
+        }
+        is Token.Var -> {
+            Datum.Symbol(leaf.name)
+        }
+        is Token.True -> {
+            Datum.Bool(TF.True)
+        }
+        is Token.False -> {
+            Datum.Bool(TF.False)
+        }
+        is Token.Num -> {
+            Datum.Num(leaf.value)
+        }
+        else -> {
+            throw Error("構文エラー $leaf")
+        }
+    }
+}
+
+fun parseDatumLst(ns: Node.Nodes): Datum.Lst {
+//    (quote '(1 2 3 (4 5) 6))
+    // ns(l1, l2, l3, ns(l4, l5), 6)
+    return Datum.Lst(ns.ns.map { parseDatum(it) })
 }
 
 fun parseProceduteCall(node: Node.Nodes): Exp.ProcedureCall {

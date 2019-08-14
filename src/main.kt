@@ -65,6 +65,20 @@ class Main {
             """.trimIndent()
             val node8 = parseNodeList(tokenize(testCode6))
             println(parseProgram(node8))
+
+            val testCode9 = """
+                (quote (1 2 3))
+            """.trimIndent()
+            val node9 = parseNodeList(tokenize(testCode9))
+            println(parseProgram(node9))
+
+            val testCode10 = """
+                (cond ((= a (+ 1 2)) 1)
+                    (b 2)
+            (else #f))
+            """.trimIndent()
+            val node10 = parseNodeList(tokenize(testCode10))
+            println(parseProgram(node10))
         }
     }
 }

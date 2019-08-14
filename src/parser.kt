@@ -97,7 +97,7 @@ fun parseForm(node: Node): Form {
                     }
                 }
                 else -> {
-                    throw Error("構文エラー $node")
+                    return Form._Exp(parseExp(node))
                 }
             }
         }
@@ -158,6 +158,12 @@ fun parseExp(node: Node): Exp {
                 is Token.Var -> {
                     return Exp.Var(l.name)
                 }
+                is Token.True -> {
+                    return Exp.Bool(TF.True)
+                }
+                is Token.False -> {
+                    return Exp.Bool(TF.False)
+                }
                 in OperandsHash.keys -> {
                     val op = OperandsHash[l] ?: throw Error()
                     return Exp.Op(op)
@@ -183,7 +189,7 @@ fun parseExp(node: Node): Exp {
                     }
                 }
                 else -> {
-                    throw Error()
+                    return parseProceduteCall(node)
                 }
             }
         }

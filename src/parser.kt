@@ -85,7 +85,7 @@ fun parseProgram(nodes: List<Node>): Program{
 fun parseForm(node: Node) : Form {
     when(node) {
         is Node.Leaf -> {
-            throw Error("構文エラー $node")
+            return Form._Exp(parseExp(node))
         }
         is Node.Nodes -> {
             when(val first = node.ns[0]){
@@ -106,9 +106,46 @@ fun parseForm(node: Node) : Form {
 // (define (x v1 v2 v3) 1)
 // (define x 0)
 fun parseDefine(node: Node): Form._Definition {
+    if(node !is Node.Nodes) {
+        throw Error("Leafがdefineに来てる $node")
+    }
+    val ns = node.ns
+    val cadr = cadr(ns)
+    if(cadr is Node.Nodes) {
+        // (define (a x) x)
+        val name = parseExp(car(cadr.ns))
+        val params = parseVarList(cdr(cadr.ns))
+        val body = parseProgram(cddr(ns))
+        val lambda = Exp.Lambda(params, body)
+        if(name !is Exp.Var) {
+            throw Error("構文エラー、defineの名前が変数でない $name $node")
+        }
+        return Form._Definition(name, lambda)
+    } else {
+        // (define a 2)
+        val name = parseExp(cadr(ns))
+        val body = parseExp(caddr(ns))
+        if(name !is Exp.Var) {
+            throw Error("構文エラー、defineの名前が変数でない $name $node")
+        }
+        return Form._Definition(name, body)
+    }
 
 }
 
+
+fun parseVarList(nodes: List<Node>): List<Exp.Var> {
+//    (x y z)
+    val acm = mutableListOf<Exp.Var>()
+    nodes.forEach {
+        if(it is Node.Leaf && it.l is Token.Var) {
+            acm.add(Exp.Var(it.l.name))
+        } else {
+            throw Error()
+        }
+    }
+    return acm
+}
 
 fun parseExp(node: Node): Exp {
     when(node) {

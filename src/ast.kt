@@ -21,5 +21,5 @@ sealed class Exp {
     data class Num(val value: Float): Exp()
     data class ProcedureCall(val operator: Exp, val operands: List<Exp>): Exp()
     data class If(val cond: Exp, val consequence: Exp, val alternative: Exp?): Exp()
-    data class Lambda(val vars: List<Var>, val body: List<Form>): Exp()
+    data class Lambda(val vars: List<Var>, val body: Program): Exp()
 }

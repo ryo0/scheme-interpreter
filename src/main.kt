@@ -23,25 +23,36 @@ class Main {
                 (define x 0)
             """.trimIndent()
 
-            println(parseNodeList(tokenize(testCode0)))
+            val node2 = parseNodeList(tokenize(testCode0))
+            println(parseProgram(node2))
 
             val testCode1 = """
                 (define x (+ 1 1))
             """.trimIndent()
-//
-//            println(parseNodeList(tokenize(testCode1)))
-//
-//            val testCode2 = """
-//                (define (x v1 v2 v3) 1)
-//            """.trimIndent()
-//
-//            println(parseNodeList(tokenize(testCode2)))
-//
-//            val testCode3 = """
-//                (define (x v1 v2 v3) (+ 1 (* 2 3)))
-//            """.trimIndent()
-//
-//            println(parseNodeList(tokenize(testCode3)))
+
+            val node3 = parseNodeList(tokenize(testCode1))
+            println(parseProgram(node3))
+
+            val testCode2 = """
+                (define (x v1 v2 v3) 1)
+            """.trimIndent()
+
+            val node4 = parseNodeList(tokenize(testCode2))
+            println(parseProgram(node4))
+
+            val testCode3 = """
+                 (define x 1) 
+                (+ 2 1)
+            """.trimIndent()
+
+            val node5 = parseNodeList(tokenize(testCode3))
+            println(parseProgram(node5))
+
+            val testCode4 = """
+                (define (x v1 v2 v3) (+ 1 (* 2 3)))
+            """.trimIndent()
+            val node6 = parseNodeList(tokenize(testCode4))
+            println(parseProgram(node6))
         }
     }
 }

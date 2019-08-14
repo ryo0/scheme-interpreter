@@ -83,7 +83,7 @@ fun tokenize(inputStr: String): List<Token> {
                     tokens.add(Token.Quote)
                     tokens.add(Token.Var(atom.drop(1)))
                     tokens.add(Token.RParen)
-                    i += atom.length + 1
+                    i += atom.length
                 } else {
                     val token = symbolHash[char] ?: throw Error()
                     tokens.add(token)
@@ -138,10 +138,37 @@ fun tokenize(inputStr: String): List<Token> {
 }
 
 fun getAtom(str: String): String {
-    val i = if (str.first() == '\'') {
-        str.indexOfFirst { it == ' ' || it == '\n' }
-    } else {
-        str.indexOfFirst { it == ' ' || it == '\n' || it == '(' || it == ')' }
+    var i = 0
+    var parenCounter = 0
+    var result = ""
+    loop@ while (true) {
+        val char = str[i]
+        when (char) {
+            '(' -> {
+                result += char
+                parenCounter++
+                i++
+            }
+            ')' -> {
+                parenCounter--
+                if (parenCounter < 0) {
+                    break@loop
+                } else if (parenCounter == 0) {
+                    result += char
+                    break@loop
+                } else {
+                    result += char
+                }
+                i++
+            }
+            ' ', '\n' -> {
+                break@loop
+            }
+            else -> {
+                result += char
+                i++
+            }
+        }
     }
-    return str.slice(0 until i)
+    return result
 }

@@ -2,13 +2,19 @@ class Main {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
+            println(getAtom("()))"))
+            println(getAtom("(a)b))"))
+            println(getAtom("ab))"))
+            println(getAtom("(a(b)))"))
+
             val testCode00 = """
                 (if (= a 2)
                     a
                     2)
                 """.trimIndent()
-
+//
             val nodes0 = parseNodeList(tokenize(testCode00))
+            println(nodes0)
             println(parseProgram(nodes0))
 
             val testCode01 = """
@@ -41,7 +47,7 @@ class Main {
             println(parseProgram(node4))
 
             val testCode3 = """
-                 (define x 1) 
+                 (define x 1)
                 (+ 2 1)
             """.trimIndent()
 
@@ -81,6 +87,26 @@ class Main {
             println(parseProgram(node10))
 
             val test = """
+;;;; クォート式は (quote <text-of-quotation>) の形
+(define (a b)
+  (c exp 'quote))
+
+(define (text-of-quotation exp) (cadr exp))
+            """.trimIndent()
+            println(tokenize(test))
+            val node11 = parseNodeList(tokenize(test))
+            println(node11)
+            println(parseProgram(node11))
+
+            val test12 = """
+                (define (a x) 2) (define (b y) 4)
+            """.trimIndent()
+            val node12 = parseNodeList(tokenize(test12))
+            println(node12)
+            println(parseProgram(node12))
+
+            val test13 = """
+;;;; _apply の定義
 (define (_apply procedure arguments)
   (cond ((primitive-procedure? procedure)
          (apply-primitive-procedure procedure arguments))
@@ -448,8 +474,10 @@ class Main {
                      '<procedure-env>))
       (display object)))
             """.trimIndent()
-            val node11 = parseNodeList(tokenize(test))
-            println(parseProgram(node11))
+            println(tokenize(test13))
+            val node13 = parseNodeList(tokenize(test13))
+            println(node13)
+            println(parseProgram(node13))
         }
     }
 }

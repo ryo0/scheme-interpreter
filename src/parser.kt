@@ -88,16 +88,16 @@ fun parseForm(node: Node): Form {
             return Form._Exp(parseExp(node))
         }
         is Node.Nodes -> {
-            return when (val first = node.ns[0]) {
+            when (val first = node.ns[0]) {
                 is Node.Leaf -> {
                     if (first.l is Token.Define) {
-                        parseDefine(node)
+                        return parseDefine(node)
                     } else {
-                        Form._Exp(parseExp(node))
+                        return Form._Exp(parseExp(node))
                     }
                 }
                 else -> {
-                    Form._Exp(parseExp(node))
+                    return Form._Exp(parseExp(node))
                 }
             }
         }
@@ -172,7 +172,7 @@ fun parseExp(node: Node): Exp {
                     return Exp.Op(op)
                 }
                 else -> {
-                    throw Error("$l")
+                    throw Error("$node")
                 }
             }
         }
@@ -180,18 +180,29 @@ fun parseExp(node: Node): Exp {
             if (node.ns.count() == 0) {
                 throw Error("$node")
             }
+            if (node.ns.count() == 1) {
+                when (val first = node.ns[0]) {
+                    is Node.Leaf -> {
+                        when (first.l) {
+                            is Token.Num -> {
+                                return Exp.Num(first.l.value)
+                            }
+                            is Token.Var -> {
+                                return Exp.Var(first.l.name)
+                            }
+                            is Token.Str -> {
+                                return Exp.Symbol(first.l.name)
+                            }
+                            else -> {
+                                throw Error("構文エラー $node")
+                            }
+                        }
+                    }
+                }
+            }
             when (val first = node.ns[0]) {
                 is Node.Leaf -> {
                     when (first.l) {
-                        is Token.Num -> {
-                            return Exp.Num(first.l.value)
-                        }
-                        is Token.Var -> {
-                            return Exp.Var(first.l.name)
-                        }
-                        is Token.Str -> {
-                            return Exp.Symbol(first.l.name)
-                        }
                         is Token.If -> {
                             return parseIf(node)
                         }
@@ -224,7 +235,6 @@ fun parseIf(node: Node.Nodes): Exp.If {
     val ns = node.ns
     val cadr = cadr(ns)
     val caddr = caddr(ns)
-    println(ns.toString())
     if (cdddr(ns).count() != 0) {
         return Exp.If(parseExp(cadr), parseExp(caddr), parseExp(cadddr(ns)))
     } else {
@@ -311,7 +321,7 @@ fun parseDatumNotLst(leaf: Node.Leaf): Datum {
 }
 
 fun parseDatumLst(ns: Node.Nodes): Datum.Lst {
-//    (quote '(1 2 3 (4 5) 6))
+    //    (quote '(1 2 3 (4 5) 6))
     // ns(l1, l2, l3, ns(l4, l5), 6)
     return Datum.Lst(ns.ns.map { parseDatum(it) })
 }
@@ -324,7 +334,7 @@ fun parseProceduteCall(node: Node.Nodes): Exp.ProcedureCall {
 }
 
 fun parseLambda(node: Node.Nodes): Exp.Lambda {
-//    (lambda (a x) x)
+    //    (lambda (a x) x)
     val ns = node.ns
     val cadr = (cadr(ns)) as? Node.Nodes ?: throw Error("構文エラー: lambdaに変数/引数のカッコがない $node")
     val paramList = parseVarList(cadr.ns)

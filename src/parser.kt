@@ -217,6 +217,9 @@ fun parseExp(node: Node): Exp {
                         is Token.Let -> {
                             return parseLet(node)
                         }
+                        is Token.Begin -> {
+                            return parseBegin(node)
+                        }
                         else -> {
                             return parseProceduteCall(node)
                         }
@@ -369,4 +372,15 @@ fun parseLambda(node: Node.Nodes): Exp.Lambda {
     val paramList = parseVarList(cadr.ns)
     val body = parseProgram(cddr(ns))
     return Exp.Lambda(paramList, body)
+}
+
+fun parseBegin(node: Node.Nodes) : Exp.Begin {
+//    (begin (+ 1 2) (+ 3 4) (+ 5 6))
+    val ns = node.ns
+    val cdr = cdr(ns)
+    val exps = cdr.map {
+        parseExp(it)
+    }
+    return Exp.Begin(exps)
+
 }

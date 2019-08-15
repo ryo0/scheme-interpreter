@@ -43,4 +43,5 @@ sealed class Exp {
     data class Let(val varExps: List<VarExp>, val body: Program) : Exp()
     data class Lambda(val vars: List<Var>, val body: Program) : Exp()
     data class Quote(val value: Datum) : Exp()
+    data class Begin(val exps: List<Exp>) : Exp()
 }

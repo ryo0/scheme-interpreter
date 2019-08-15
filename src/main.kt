@@ -488,23 +488,18 @@ class Main {
     (make-interval (min p1 p2 p3 p4)
                    (max p1 p2 p3 p4)))
             """.trimIndent()
-
             println(tokenize(test14))
             val node14 = parseNodeList(tokenize(test14))
             println(node14)
             println(parseProgram(node14))
 
-//            Program(p=
-//            [_Definition(v=Var(name=mul-interval),
-//            exp=Lambda(vars=[Var(name=x), Var(name=y)],
-//            body=Program(p=[_Exp(e=Let(varExps=
-//            [VarExp(name=Var(name=p1), exp=ProcedureCall(operator=Op(op=Asterisk), operands=[ProcedureCall(operator=Var(name=lower-bound), operands=[Var(name=x)]),
-//                                                                                   ProcedureCall(operator=Var(name=lower-bound), operands=[Var(name=y)])])),
-//             VarExp(name=Var(name=p2), exp=ProcedureCall(operator=Op(op=Asterisk), operands=[ProcedureCall(operator=Var(name=lower-bound), operands=[Var(name=x)]),
-//                                                                                   ProcedureCall(operator=Var(name=upper-bound), operands=[Var(name=y)])])),
-//             VarExp(name=Var(name=p3), exp=ProcedureCall(operator=Op(op=Asterisk), operands=[ProcedureCall(operator=Var(name=upper-bound), operands=[Var(name=x)]), ProcedureCall(operator=Var(name=lower-bound), operands=[Var(name=y)])])), VarExp(name=Var(name=p4), exp=ProcedureCall(operator=Op(op=Asterisk), operands=[ProcedureCall(operator=Var(name=upper-bound), operands=[Var(name=x)]), ProcedureCall(operator=Var(name=upper-bound), operands=[Var(name=y)])]))],
-//             body=Program(p=[_Exp(e=ProcedureCall(operator=Var(name=make-interval), operands=[ProcedureCall(operator=Var(name=min), operands=[Var(name=p1), Var(name=p2), Var(name=p3), Var(name=p4)]),
-//                                                                                              ProcedureCall(operator=Var(name=max), operands=[Var(name=p1), Var(name=p2), Var(name=p3), Var(name=p4)])]))])))])))])
+            val test15 = """
+                (begin (+ 1 2) (+ 3 4) 5)
+            """.trimIndent()
+            println(tokenize(test15))
+            val node15 = parseNodeList(tokenize(test15))
+            println(node15)
+            println(parseProgram(node15))
         }
     }
 }

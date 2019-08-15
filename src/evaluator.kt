@@ -25,7 +25,7 @@ val OpHash = mapOf(
 
 fun evalExp(exp: Exp): Exp? {
     when(exp) {
-        is Exp.Num, is Exp.Var, is Exp.Bool -> {
+        is Exp.Num, is Exp.Var, is Exp.Bool, is Exp.Symbol, is Exp.Quote -> {
             return exp
         }
         is Exp.If -> {
@@ -43,27 +43,47 @@ fun evalExp(exp: Exp): Exp? {
         is Exp.ProcedureCall -> {
             val operator = exp.operator
             val operands = exp.operands
-            if(operator is Exp.Op) {
-                when(val op = operator.op) {
-                    in OpHash.keys -> {
-                        val opLambda = OpHash[op] ?: throw Error()
-                        val head = operands.head as? Exp.Num ?: throw Error()
-                        val result = operands.tail.map {
-                            if(it is Exp.Num) {
-                                it.value
-                            } else {
-                                throw Error()
+            when(operator) {
+                is Exp.Op -> {
+                    when (val op = operator.op) {
+                        in OpHash.keys -> {
+                            val opLambda = OpHash[op] ?: throw Error()
+                            val head = operands.head as? Exp.Num ?: throw Error()
+                            val result = operands.tail.map {
+                                if (it is Exp.Num) {
+                                    it.value
+                                } else {
+                                    throw Error()
+                                }
                             }
+                                .foldRight(head.value, opLambda)
+                            return Exp.Num(result)
                         }
-                            .foldRight(head.value, opLambda)
-                        return Exp.Num(result)
-                    }
-                    else -> {
-                        throw Error()
+                        else -> {
+                            throw Error()
+                        }
                     }
                 }
-            } else {
-                throw Error()
+                is Exp.Var -> {
+                    val name = operator.name
+                    if(name == "car" || name == "cdr") {
+                        if(operands.count() != 1) {
+                            throw Error("$operands")
+                        }
+                        val quotedLst = operands.first() as? Exp.Quote ?: throw Error()
+                        val lst = quotedLst.value as? Datum.Lst ?: throw Error()
+                        if(name == "car") {
+                            return Exp.Quote(lst.lst.head)
+                        } else {
+                            return Exp.Quote(Datum.Lst(lst.lst.tail))
+                        }
+                    } else {
+                        throw Error("未対応な関数 $name")
+                    }
+                }
+                else -> {
+                    throw Error()
+                }
             }
         }
         else -> {

@@ -9,8 +9,8 @@ class Main {
 
             val testCode00 = """
                 (if #f
-                    a
-                    2)
+                    (+ 1 3)
+                    (+ 1 1))
                 """.trimIndent()
 
             val nodes0 = parseNodeList(tokenize(testCode00))

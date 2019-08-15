@@ -33,6 +33,31 @@ fun evalExp(exp: Exp): Exp? {
                 }
             }
         }
+        is Exp.ProcedureCall -> {
+            val operator = exp.operator
+            val operands = exp.operands
+            if(operator is Exp.Op) {
+                when(operator.op) {
+                    Ops.Plus -> {
+//                        .foldRight(0f, { acm, value  -> acm + value })
+                        val result = operands.map {
+                            if(it is Exp.Num) {
+                                it.value
+                            } else {
+                                throw Error()
+                            }
+                        }
+                            .foldRight(0f, {acm, value -> acm + value})
+                        return Exp.Num(result)
+                    }
+                    else -> {
+                        throw Error()
+                    }
+                }
+            } else {
+                throw Error()
+            }
+        }
         else -> {
             return null
         }

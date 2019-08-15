@@ -81,14 +81,13 @@ fun tokenize(inputStr: String): List<Token> {
                 if (char == '\'') {
                     val strFromIToLast = str.slice(i+1 until str.length)
                     val quoteString = getQuoteString(strFromIToLast)
-                    println(quoteString)
                     val quoteExpToken = tokenize(quoteString) // (1 2 3)
                     // (quote (1 2 3))にしたい
                     tokens.add(Token.LParen)
                     tokens.add(Token.Quote)
                     tokens += quoteExpToken
                     tokens.add(Token.RParen)
-                    i += quoteString.length + 1
+                    i += quoteString.length + 1 // quoteのぶん+1
                 } else {
                     val token = symbolHash[char] ?: throw Error()
                     tokens.add(token)

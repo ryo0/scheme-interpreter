@@ -24,12 +24,12 @@ val OpHash = mapOf(
 )
 
 fun evalExp(exp: Exp): Exp? {
-    when(exp) {
+    return when(exp) {
         is Exp.Num, is Exp.Var, is Exp.Bool, is Exp.Symbol, is Exp.Quote -> {
-            return exp
+            exp
         }
         is Exp.If -> {
-            return if(isTrue(evalExp(exp.cond))) {
+            if(isTrue(evalExp(exp.cond))) {
                 evalExp(exp.consequence)
             } else {
                 val alt = exp.alternative
@@ -47,17 +47,7 @@ fun evalExp(exp: Exp): Exp? {
                 is Exp.Op -> {
                     when (val op = operator.op) {
                         in OpHash.keys -> {
-                            val opLambda = OpHash[op] ?: throw Error()
-                            val head = operands.head as? Exp.Num ?: throw Error()
-                            val result = operands.tail.map {
-                                if (it is Exp.Num) {
-                                    it.value
-                                } else {
-                                    throw Error()
-                                }
-                            }
-                                .foldRight(head.value, opLambda)
-                            return Exp.Num(result)
+                            evalCalculate(op, operands)
                         }
                         else -> {
                             throw Error()
@@ -65,30 +55,11 @@ fun evalExp(exp: Exp): Exp? {
                     }
                 }
                 is Exp.Var -> {
-                    val name = operator.name
-                    if(name == "car" || name == "cdr") {
-                        if(operands.count() != 1) {
-                            throw Error("$name $operands")
-                        }
-                        val quotedLst = operands.first() as? Exp.Quote ?: throw Error("$operands")
-                        val lst = quotedLst.value as? Datum.Lst ?: throw Error("$quotedLst")
-                        if(name == "car") {
-                            return Exp.Quote(lst.lst.head)
-                        } else {
-                            return Exp.Quote(Datum.Lst(lst.lst.tail))
-                        }
-                    } else if (name == "cons") {
-                        if(operands.count() != 2) {
-                            throw Error("$name $operands")
-                        }
-                        val car = evalExp(operands.head) ?: throw Error("carがnull $operands")
-                        val cadr = operands.tail.head as? Exp.Quote ?: throw Error("$name $operands")
-                        val cdrlst = cadr.value as? Datum.Lst ?: throw Error("$name, ${cadr.value}")
-                        val carDatum = converterExpToDatum(car)
-                        val cdrDatum = cdrlst.lst
-                        return Exp.Quote(Datum.Lst(listOf(carDatum) + cdrDatum))
-                    } else {
-                        throw Error("未対応な関数 $name")
+                    when(val name = operator.name) {
+                        "car" -> evalCar(operands)
+                        "cdr" -> evalCdr(operands)
+                        "cons"  -> evalCons(operands)
+                        else -> throw Error("未対応な関数 $name")
                     }
                 }
                 else -> {
@@ -97,9 +68,51 @@ fun evalExp(exp: Exp): Exp? {
             }
         }
         else -> {
-            return null
+            null
         }
     }
+}
+
+fun evalCalculate(op: Ops, operands: List<Exp>) : Exp {
+    val opLambda = OpHash[op] ?: throw Error()
+    val head = operands.head as? Exp.Num ?: throw Error()
+    val result = operands.tail.map {
+        if (it is Exp.Num) {
+            it.value
+        } else {
+            throw Error()
+        }
+    } .foldRight(head.value, opLambda)
+    return Exp.Num(result)
+}
+fun evalCar(operands: List<Exp>): Exp {
+    if(operands.count() != 1) {
+        throw Error("car $operands")
+    }
+    val quotedLst = operands.first() as? Exp.Quote ?: throw Error("$operands")
+    val lst = quotedLst.value as? Datum.Lst ?: throw Error("$quotedLst")
+    return Exp.Quote(lst.lst.head)
+}
+
+fun evalCdr(operands: List<Exp>): Exp {
+    if(operands.count() != 1) {
+        throw Error("cdr $operands")
+    }
+    val quotedLst = operands.first() as? Exp.Quote ?: throw Error("$operands")
+    val lst = quotedLst.value as? Datum.Lst ?: throw Error("$quotedLst")
+    return Exp.Quote(Datum.Lst(lst.lst.tail))
+}
+
+fun evalCons(operands: List<Exp>) : Exp {
+    if(operands.count() != 2) {
+        throw Error("cons $operands")
+    }
+    val car = evalExp(operands.head) ?: throw Error("carがnull $operands")
+    val cadr = operands.tail.head as? Exp.Quote ?: throw Error("cons $operands")
+    val cdrlst = cadr.value as? Datum.Lst ?: throw Error("cons, ${cadr.value}")
+    val carDatum = converterExpToDatum(car)
+    val cdrDatum = cdrlst.lst
+    return Exp.Quote(Datum.Lst(listOf(carDatum) + cdrDatum))
 }
 
 fun convertDatumToExp(datum: Datum) : Exp {

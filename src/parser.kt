@@ -38,10 +38,6 @@ fun cadddr(nodes: List<Node>): Node {
     return car(cdddr(nodes))
 }
 
-fun isPair(node: Node): Boolean {
-    return node is Node.Nodes
-}
-
 fun parseNodeList(tokens: List<Token>): List<Node> {
     return parseNodeListSub(listOf(), tokens).first
 }
@@ -218,6 +214,9 @@ fun parseExp(node: Node): Exp {
                         is Token.Lambda -> {
                             return parseLambda(node)
                         }
+                        is Token.Let -> {
+                            return parseLet(node)
+                        }
                         else -> {
                             return parseProceduteCall(node)
                         }
@@ -271,6 +270,36 @@ fun parseCondClause(node: Node.Nodes): CondClause {
     val car = parseExp(car(node.ns))
     val cdr = cdr(node.ns).map { parseExp(it) }
     return CondClause(car, cdr)
+}
+
+fun parseLet(node: Node.Nodes): Exp.Let {
+//    (let ((a b) (c d)) (define x 2) 2)
+//    (let () c)
+    val ns = node.ns
+    val cadr = cadr(ns) as? Node.Nodes ?: throw Error()
+    val cddr = cddr(ns)
+    val varExps = parseVarExpList(cadr) //((a b) (c d))
+    val body = parseProgram(cddr)
+    return Exp.Let(varExps, body)
+}
+
+fun parseVarExpList(node: Node.Nodes): List<VarExp> {
+//    ((a b) (c d))
+    val ns = node.ns
+    return ns.map {
+        if(it !is Node.Nodes) {
+            throw Error("構文エラー let $node")
+        }
+        val car = car(it.ns)
+        val cadr = cadr(it.ns)
+        if(car is Node.Leaf && cadr is Node.Nodes) {
+            val name = parseExp(car) as? Exp.Var ?: throw Error("構文エラー let $node")
+            val exp = parseExp(cadr)
+            VarExp(name, exp)
+        } else {
+            throw Error("構文エラー let $node")
+        }
+    }
 }
 
 fun parseSet(node: Node.Nodes): Exp.Set {

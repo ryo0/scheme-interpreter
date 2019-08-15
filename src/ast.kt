@@ -28,6 +28,8 @@ sealed class Datum {
 
 data class CondClause(val test: Exp, val consequence: List<Exp>)
 
+data class VarExp(val name: Exp.Var, val exp: Exp)
+
 sealed class Exp {
     data class Op(val op: Ops) : Exp()
     data class Var(val name: String) : Exp()
@@ -38,6 +40,7 @@ sealed class Exp {
     data class If(val cond: Exp, val consequence: Exp, val alternative: Exp?) : Exp()
     data class Cond(val cc: List<CondClause>, val elseExp: Exp?) : Exp()
     data class Set(val variable: Var, val value: Exp) : Exp()
+    data class Let(val varExps: List<VarExp>, val body: Program) : Exp()
     data class Lambda(val vars: List<Var>, val body: Program) : Exp()
     data class Quote(val value: Datum) : Exp()
 }

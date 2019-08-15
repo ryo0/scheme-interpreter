@@ -221,12 +221,12 @@ fun parseExp(node: Node): Exp {
                             return parseBegin(node)
                         }
                         else -> {
-                            return parseProceduteCall(node)
+                            return parseProcedureCall(node)
                         }
                     }
                 }
                 else -> {
-                    return parseProceduteCall(node)
+                    return parseProcedureCall(node)
                 }
             }
         }
@@ -313,6 +313,7 @@ fun parseSet(node: Node.Nodes): Exp.Set {
 }
 
 fun parseQuote(node: Node.Nodes): Exp.Quote {
+    //  (quote '(1 2))
     val data = parseDatum(cadr(node.ns))
     return Exp.Quote(data)
 }
@@ -358,7 +359,7 @@ fun parseDatumLst(ns: Node.Nodes): Datum.Lst {
     return Datum.Lst(ns.ns.map { parseDatum(it) })
 }
 
-fun parseProceduteCall(node: Node.Nodes): Exp.ProcedureCall {
+fun parseProcedureCall(node: Node.Nodes): Exp.ProcedureCall {
     val ns = node.ns
     val operator = car(ns)
     val operands = cdr(ns)

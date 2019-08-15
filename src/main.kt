@@ -2,32 +2,26 @@ class Main {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            println(getQuoteString("()))"))
-            println(getQuoteString("(a)b))"))
-            println(getQuoteString("ab))"))
-            println(getQuoteString("(a(b)))"))
-            println(getQuoteString("(1 2 3))"))
+            val testCode00 = """
+                (if #t
+                    (/ 1 3 2 2)
+                    (* 6 6 6 2))
+                """.trimIndent()
 
-//            val testCode00 = """
-//                (if #t
-//                    (/ 1 3 2 2)
-//                    (* 6 6 6 2))
-//                """.trimIndent()
-//
-//            val nodes0 = parseNodeList(tokenize(testCode00))
-//            println(nodes0)
-//            println(evalProgram(parseProgram(nodes0)))
-//
-//            val testCode01 = """
-//                (if #t
-//                    (- 3 1 1 1 3)
-//                    (- 1 1))
-//                """.trimIndent()
-//
-//            val nodes01 = parseNodeList(tokenize(testCode01))
-//            println(nodes01)
-//            println(evalProgram(parseProgram(nodes01)))
-//
+            val nodes0 = parseNodeList(tokenize(testCode00))
+            println(nodes0)
+            println(evalProgram(parseProgram(nodes0)))
+
+            val testCode01 = """
+                (if #t
+                    (- 3 1 1 1 3)
+                    (- 1 1))
+                """.trimIndent()
+
+            val nodes01 = parseNodeList(tokenize(testCode01))
+            println(nodes01)
+            println(evalProgram(parseProgram(nodes01)))
+
             val testCode02 = """
                 (car '(1 2 3))
                 """.trimIndent()
@@ -44,6 +38,23 @@ class Main {
             val nodes03 = parseNodeList(tokenize(testCode03))
             println(nodes03)
             println(evalProgram(parseProgram(nodes03)))
+
+            val testCode04 = """
+                (cons 0 '(1 2 3))
+                """.trimIndent()
+
+            val nodes04 = parseNodeList(tokenize(testCode04))
+            println(nodes04)
+            println(evalProgram(parseProgram(nodes04)))
+
+            val testCode05 = """
+                (cons '(0 1) '(2 3))
+                """.trimIndent()
+
+            println(tokenize(testCode05))
+            val nodes05 = parseNodeList(tokenize(testCode05))
+            println(parseProgram(nodes05))
+            println(evalProgram(parseProgram(nodes05)))
 //
 //            val testCode01 = """
 //                (if (= a 2)

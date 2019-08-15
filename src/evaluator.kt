@@ -68,15 +68,25 @@ fun evalExp(exp: Exp): Exp? {
                     val name = operator.name
                     if(name == "car" || name == "cdr") {
                         if(operands.count() != 1) {
-                            throw Error("$operands")
+                            throw Error("$name $operands")
                         }
-                        val quotedLst = operands.first() as? Exp.Quote ?: throw Error()
-                        val lst = quotedLst.value as? Datum.Lst ?: throw Error()
+                        val quotedLst = operands.first() as? Exp.Quote ?: throw Error("$operands")
+                        val lst = quotedLst.value as? Datum.Lst ?: throw Error("$quotedLst")
                         if(name == "car") {
                             return Exp.Quote(lst.lst.head)
                         } else {
                             return Exp.Quote(Datum.Lst(lst.lst.tail))
                         }
+                    } else if (name == "cons") {
+                        if(operands.count() != 2) {
+                            throw Error("$name $operands")
+                        }
+                        val car = evalExp(operands.head) ?: throw Error("carがnull $operands")
+                        val cadr = operands.tail.head as? Exp.Quote ?: throw Error("$name $operands")
+                        val cdrlst = cadr.value as? Datum.Lst ?: throw Error("$name, ${cadr.value}")
+                        val carDatum = converterExpToDatum(car)
+                        val cdrDatum = cdrlst.lst
+                        return Exp.Quote(Datum.Lst(listOf(carDatum) + cdrDatum))
                     } else {
                         throw Error("未対応な関数 $name")
                     }
@@ -89,5 +99,33 @@ fun evalExp(exp: Exp): Exp? {
         else -> {
             return null
         }
+    }
+}
+
+fun convertDatumToExp(datum: Datum) : Exp {
+    return if(datum is Datum.Num) {
+        Exp.Num(datum.value)
+    } else if (datum is Datum.Bool){
+        Exp.Bool(datum.b)
+    } else if (datum is Datum.Symbol) {
+        Exp.Symbol(datum.s)
+    } else if (datum is Datum.Lst) {
+        Exp.Quote(Datum.Lst(datum.lst))
+    } else {
+        throw Error("変換できない $datum")
+    }
+}
+
+fun converterExpToDatum(exp: Exp): Datum {
+    return if(exp is Exp.Num) {
+        Datum.Num(exp.value)
+    } else if (exp is Exp.Var && exp is Exp.Symbol) {
+        Datum.Symbol(exp.name)
+    } else if (exp is Exp.Bool ) {
+        Datum.Bool(exp.b)
+    } else if(exp is Exp.Quote) {
+        exp.value
+    } else {
+        throw Error("変換できない $exp")
     }
 }

@@ -8,9 +8,9 @@ class Main {
             println(getAtom("(a(b)))"))
 
             val testCode00 = """
-                (if #t
-                    (/ 1 3)
-                    (* 6 6))
+                (if #f
+                    (/ 1 3 2)
+                    (* 6 6 6))
                 """.trimIndent()
 
             val nodes0 = parseNodeList(tokenize(testCode00))
@@ -18,8 +18,8 @@ class Main {
             println(evalProgram(parseProgram(nodes0)))
 
             val testCode01 = """
-                (if #t
-                    (- 1 3)
+                (if #f
+                    (- 3 1 1 1)
                     (- 1 1))
                 """.trimIndent()
 

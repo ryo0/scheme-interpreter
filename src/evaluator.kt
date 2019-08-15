@@ -17,10 +17,10 @@ fun isTrue(exp: Exp?): Boolean {
 }
 
 val OpHash = mapOf(
-    Ops.Plus to {a: Float, b: Float -> a + b},
-    Ops.Minus to {a: Float, b: Float -> a - b},
-    Ops.Asterisk to {a: Float, b: Float -> a * b},
-    Ops.Slash to {a: Float, b: Float -> a / b}
+    Ops.Plus to {a: Float, b: Float -> b + a},
+    Ops.Minus to {a: Float, b: Float -> b - a},
+    Ops.Asterisk to {a: Float, b: Float -> b * a},
+    Ops.Slash to {a: Float, b: Float -> b / a}
 )
 
 fun evalExp(exp: Exp): Exp? {
@@ -45,28 +45,17 @@ fun evalExp(exp: Exp): Exp? {
             val operands = exp.operands
             if(operator is Exp.Op) {
                 when(val op = operator.op) {
-                    Ops.Plus, Ops.Minus -> {
+                    in OpHash.keys -> {
                         val opLambda = OpHash[op] ?: throw Error()
-                        val result = operands.map {
+                        val head = operands.head as? Exp.Num ?: throw Error()
+                        val result = operands.tail.map {
                             if(it is Exp.Num) {
                                 it.value
                             } else {
                                 throw Error()
                             }
                         }
-                            .foldRight(0f, opLambda)
-                        return Exp.Num(result)
-                    }
-                    Ops.Asterisk, Ops.Slash -> {
-                        val opLambda = OpHash[op] ?: throw Error()
-                        val result = operands.map {
-                            if(it is Exp.Num) {
-                                it.value
-                            } else {
-                                throw Error()
-                            }
-                        }
-                            .foldRight(1f, opLambda)
+                            .foldRight(head.value, opLambda)
                         return Exp.Num(result)
                     }
                     else -> {

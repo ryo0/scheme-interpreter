@@ -8,14 +8,24 @@ class Main {
             println(getAtom("(a(b)))"))
 
             val testCode00 = """
-                (if #f
-                    (+ 1 3)
-                    (+ 1 1))
+                (if #t
+                    (/ 1 3)
+                    (* 6 6))
                 """.trimIndent()
 
             val nodes0 = parseNodeList(tokenize(testCode00))
             println(nodes0)
             println(evalProgram(parseProgram(nodes0)))
+
+            val testCode01 = """
+                (if #t
+                    (- 1 3)
+                    (- 1 1))
+                """.trimIndent()
+
+            val nodes01 = parseNodeList(tokenize(testCode01))
+            println(nodes01)
+            println(evalProgram(parseProgram(nodes01)))
 //
 //            val testCode01 = """
 //                (if (= a 2)

@@ -1,15 +1,16 @@
 fun evalProgram(p: Program): Exp?{
+    var result: Exp? = null
     for (form in p.p) {
         when(form) {
             is Form._Exp -> {
-                return evalExp(form.e)
+                result = evalExp(form.e)
             }
             else -> {
-                return null
+                result = null
             }
         }
     }
-    return null
+    return result
 }
 
 fun isTrue(exp: Exp?): Boolean {
@@ -47,7 +48,7 @@ fun evalExp(exp: Exp): Exp? {
                 is Exp.Op -> {
                     when (val op = operator.op) {
                         in OpHash.keys -> {
-                            evalCalculate(op, operands)
+                            applyCalculate(op, operands)
                         }
                         else -> {
                             throw Error()
@@ -56,9 +57,9 @@ fun evalExp(exp: Exp): Exp? {
                 }
                 is Exp.Var -> {
                     when(val name = operator.name) {
-                        "car" -> evalCar(operands)
-                        "cdr" -> evalCdr(operands)
-                        "cons"  -> evalCons(operands)
+                        "car" -> applyCar(operands)
+                        "cdr" -> applyCdr(operands)
+                        "cons"  -> applyCons(operands)
                         else -> throw Error("未対応な関数 $name")
                     }
                 }
@@ -73,7 +74,7 @@ fun evalExp(exp: Exp): Exp? {
     }
 }
 
-fun evalCalculate(op: Ops, operands: List<Exp>) : Exp {
+fun applyCalculate(op: Ops, operands: List<Exp>) : Exp {
     val opLambda = OpHash[op] ?: throw Error()
     val head = operands.head as? Exp.Num ?: throw Error()
     val result = operands.tail.map {
@@ -85,7 +86,7 @@ fun evalCalculate(op: Ops, operands: List<Exp>) : Exp {
     } .foldRight(head.value, opLambda)
     return Exp.Num(result)
 }
-fun evalCar(operands: List<Exp>): Exp {
+fun applyCar(operands: List<Exp>): Exp {
     if(operands.count() != 1) {
         throw Error("car $operands")
     }
@@ -94,7 +95,7 @@ fun evalCar(operands: List<Exp>): Exp {
     return Exp.Quote(lst.lst.head)
 }
 
-fun evalCdr(operands: List<Exp>): Exp {
+fun applyCdr(operands: List<Exp>): Exp {
     if(operands.count() != 1) {
         throw Error("cdr $operands")
     }
@@ -103,7 +104,7 @@ fun evalCdr(operands: List<Exp>): Exp {
     return Exp.Quote(Datum.Lst(lst.lst.tail))
 }
 
-fun evalCons(operands: List<Exp>) : Exp {
+fun applyCons(operands: List<Exp>) : Exp {
     if(operands.count() != 2) {
         throw Error("cons $operands")
     }

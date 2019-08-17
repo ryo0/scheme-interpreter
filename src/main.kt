@@ -9,8 +9,7 @@ class Main {
                 """.trimIndent()
 
             val nodes0 = parseNodeList(tokenize(testCode00))
-            println(nodes0)
-            println(evalProgram(parseProgram(nodes0)))
+            println(eval(parseProgram(nodes0)))
 
             val testCode01 = """
                 (if #t
@@ -19,42 +18,43 @@ class Main {
                 """.trimIndent()
 
             val nodes01 = parseNodeList(tokenize(testCode01))
-            println(nodes01)
-            println(evalProgram(parseProgram(nodes01)))
+            println(eval(parseProgram(nodes01)))
 
             val testCode02 = """
                 (car '(1 2 3))
                 """.trimIndent()
 
             val nodes02 = parseNodeList(tokenize(testCode02))
-            println(tokenize(testCode02))
-            println(nodes02)
-            println(evalProgram(parseProgram(nodes02)))
+            println(eval(parseProgram(nodes02)))
 
             val testCode03 = """
                 (cdr '(1 2 3))
                 """.trimIndent()
 
             val nodes03 = parseNodeList(tokenize(testCode03))
-            println(nodes03)
-            println(evalProgram(parseProgram(nodes03)))
+            println(eval(parseProgram(nodes03)))
 
             val testCode04 = """
                 (cons 0 '(1 2 3))
                 """.trimIndent()
 
             val nodes04 = parseNodeList(tokenize(testCode04))
-            println(nodes04)
-            println(evalProgram(parseProgram(nodes04)))
+            println(eval(parseProgram(nodes04)))
 
             val testCode05 = """
                 (cons '(0 1) '(2 3))
                 """.trimIndent()
 
-            println(tokenize(testCode05))
             val nodes05 = parseNodeList(tokenize(testCode05))
-            println(parseProgram(nodes05))
-            println(evalProgram(parseProgram(nodes05)))
+            println(eval(parseProgram(nodes05)))
+
+            val testCode06 = """
+                (define x (+ 1 1))
+                (+ x 2)
+                """.trimIndent()
+
+            val nodes06 = parseNodeList(tokenize(testCode06))
+            println(eval(parseProgram(nodes06)))
 //
 //            val testCode01 = """
 //                (if (= a 2)

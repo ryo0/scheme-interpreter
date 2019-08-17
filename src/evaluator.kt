@@ -1,11 +1,19 @@
-fun evalProgram(p: Program): Exp?{
+data class Env(val lst: List<MutableMap<String, Exp>>)
+
+fun eval(p: Program): Exp? {
+    return evalProgram(p, Env(listOf(mutableMapOf())))
+}
+
+fun evalProgram(p: Program, env: Env): Exp?{
     var result: Exp? = null
+    var _env = env
     for (form in p.p) {
         when(form) {
             is Form._Exp -> {
-                result = evalExp(form.e)
+                result = evalExp(form.e, env)
             }
-            else -> {
+            is Form._Definition -> {
+                _env = evalDefinition(form.v, form.exp, _env)
                 result = null
             }
         }
@@ -24,18 +32,45 @@ val OpHash = mapOf(
     Ops.Slash to {a: Float, b: Float -> b / a}
 )
 
-fun evalExp(exp: Exp): Exp? {
+val primitiveProcedures = mapOf(
+    "car" to {operands : List<Exp>, env: Env ->  applyCar(operands, env)},
+    "cdr" to {operands : List<Exp>, env: Env  -> applyCdr(operands, env)},
+    "cons" to {operands : List<Exp>, env: Env  -> applyCons(operands, env)}
+)
+
+fun evalDefinition(v: Exp.Var, valueExp: Exp, env: Env): Env {
+    val value = evalExp(valueExp, env)
+    if (value != null) {
+        env.lst.head[v.name] = value
+    }
+    return env
+}
+
+fun findFromEnv(name: String, env: Env): Exp? {
+    env.lst.forEach{
+        val result = it[name]
+        if(result != null) {
+            return result
+        }
+    }
+    return null
+}
+
+fun evalExp(exp: Exp, env: Env): Exp? {
     return when(exp) {
-        is Exp.Num, is Exp.Var, is Exp.Bool, is Exp.Symbol, is Exp.Quote -> {
+        is Exp.Num, is Exp.Bool, is Exp.Symbol, is Exp.Quote -> {
             exp
         }
+        is Exp.Var -> {
+            findFromEnv(exp.name, env)
+        }
         is Exp.If -> {
-            if(isTrue(evalExp(exp.cond))) {
-                evalExp(exp.consequence)
+            if(isTrue(evalExp(exp.cond, env))) {
+                evalExp(exp.consequence, env)
             } else {
                 val alt = exp.alternative
                 if(alt != null) {
-                    evalExp(alt)
+                    evalExp(alt, env)
                 } else {
                     null
                 }
@@ -48,7 +83,7 @@ fun evalExp(exp: Exp): Exp? {
                 is Exp.Op -> {
                     when (val op = operator.op) {
                         in OpHash.keys -> {
-                            applyCalculate(op, operands)
+                            applyCalculate(op, operands, env)
                         }
                         else -> {
                             throw Error()
@@ -56,11 +91,12 @@ fun evalExp(exp: Exp): Exp? {
                     }
                 }
                 is Exp.Var -> {
-                    when(val name = operator.name) {
-                        "car" -> applyCar(operands)
-                        "cdr" -> applyCdr(operands)
-                        "cons"  -> applyCons(operands)
-                        else -> throw Error("未対応な関数 $name")
+                    val procedure = primitiveProcedures[operator.name]
+                    if(procedure != null ){
+                        procedure(operands, env)
+                    }
+                    else {
+                        throw Error("未対応な関数 ${operator.name}")
                     }
                 }
                 else -> {
@@ -74,19 +110,28 @@ fun evalExp(exp: Exp): Exp? {
     }
 }
 
-fun applyCalculate(op: Ops, operands: List<Exp>) : Exp {
+fun getValue(exp: Exp, env: Env): Exp {
+    if(exp is Exp.Num) {
+        return exp
+    }
+    else if(exp is Exp.Var) {
+        return findFromEnv(exp.name, env) ?: throw Error()
+    } else {
+        throw Error()
+    }
+}
+
+fun applyCalculate(op: Ops, operands: List<Exp>, env: Env) : Exp {
     val opLambda = OpHash[op] ?: throw Error()
-    val head = operands.head as? Exp.Num ?: throw Error()
+    val head = getValue(operands.head, env) as? Exp.Num ?: throw Error()
     val result = operands.tail.map {
-        if (it is Exp.Num) {
-            it.value
-        } else {
-            throw Error()
-        }
+        val valueExp = getValue(it, env) as? Exp.Num ?: throw Error()
+        valueExp.value
     } .foldRight(head.value, opLambda)
     return Exp.Num(result)
 }
-fun applyCar(operands: List<Exp>): Exp {
+
+fun applyCar(operands: List<Exp>, env: Env): Exp {
     if(operands.count() != 1) {
         throw Error("car $operands")
     }
@@ -95,7 +140,7 @@ fun applyCar(operands: List<Exp>): Exp {
     return Exp.Quote(lst.lst.head)
 }
 
-fun applyCdr(operands: List<Exp>): Exp {
+fun applyCdr(operands: List<Exp>, env: Env): Exp {
     if(operands.count() != 1) {
         throw Error("cdr $operands")
     }
@@ -104,11 +149,11 @@ fun applyCdr(operands: List<Exp>): Exp {
     return Exp.Quote(Datum.Lst(lst.lst.tail))
 }
 
-fun applyCons(operands: List<Exp>) : Exp {
+fun applyCons(operands: List<Exp>, env: Env) : Exp {
     if(operands.count() != 2) {
         throw Error("cons $operands")
     }
-    val car = evalExp(operands.head) ?: throw Error("carがnull $operands")
+    val car = evalExp(operands.head, env) ?: throw Error("carがnull $operands")
     val cadr = operands.tail.head as? Exp.Quote ?: throw Error("cons $operands")
     val cdrlst = cadr.value as? Datum.Lst ?: throw Error("cons, ${cadr.value}")
     val carDatum = converterExpToDatum(car)

@@ -7,7 +7,8 @@ val initialEnv =  mutableMapOf<String, Exp>(
     "null?" to Exp.Procedure{args : List<Exp> -> applyNullCheck(args)},
     "eq?" to Exp.Procedure{args : List<Exp> -> applyEqualCheck(args)},
     "and" to Exp.Procedure{args : List<Exp> -> applyAnd(args)},
-    "or" to Exp.Procedure{args : List<Exp> -> applyOr(args)}
+    "or" to Exp.Procedure{args : List<Exp> -> applyOr(args)},
+    "print" to Exp.Procedure{args : List<Exp> -> applyPrint(args)}
 )
 
 fun eval(p: Program): Exp? {
@@ -214,6 +215,65 @@ fun applyOr(operands: List<Exp>): Exp {
         valueExp.b
     } .foldRight(head.b, {a: TF, b: TF -> TFOr(b, a)})
     return Exp.Bool(result)
+}
+
+fun applyPrint(operands: List<Exp>): Exp? {
+    if(operands.count() < 1) {
+        throw Error("print 引数が1つもない $operands")
+    }
+    operands.forEach {
+        println(convertExpToString(it))
+    }
+    return null
+}
+
+fun convertExpToString(exp: Exp): String {
+    return when(exp) {
+        is Exp.Num -> {
+            exp.value.toString()
+        }
+        is Exp.Var -> {
+            exp.name
+        }
+        is Exp.Bool -> {
+            if(exp.b == TF.True) {
+               "true"
+            } else {
+                "false"
+            }
+        }
+        is Exp.Quote -> {
+            if(exp.value is Datum.Lst) {
+                printLstToString(exp.value)
+            } else {
+                "'" + convertExpToString(convertDatumToExp(exp.value))
+            }
+        }
+        is Exp.Symbol -> {
+            exp.s
+        }
+        else -> {
+            exp.toString()
+        }
+    }
+}
+
+fun printLstToString(lst: Datum.Lst): String {
+    var result = "("
+    lst.lst.forEach {
+        datum ->
+        val exp = convertDatumToExp(datum)
+        when(datum) {
+            is Datum.Lst -> {
+                result += printLstToString(datum)
+            }
+            else -> {
+                result += convertExpToString(exp)
+            }
+        }
+        result += " "
+    }
+    return "${result.slice(0 until result.length - 1)})"
 }
 
 fun TFAnd(a: TF, b: TF): TF {

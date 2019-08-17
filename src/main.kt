@@ -73,46 +73,47 @@ class Main {
                     0
                     (+ 1 (len (cdr lst))))
                 )
-                (len '(1 2 3))
+                (print '(1 2 (3 4) 5 6 (7 ((8)))))
+                (print (len '(1 2 3 4 5)))
                 """.trimIndent()
 
             val nodes08 = parseNodeList(tokenize(testCode08))
             println(eval(parseProgram(nodes08)))
 
             val testCode09 = """
-                (eq? '(- 3 2) '(- 3 2))
+                (print (eq? '(- 3 2) '(- 3 2)))
                 """.trimIndent()
 
             val nodes09 = parseNodeList(tokenize(testCode09))
             println(eval(parseProgram(nodes09)))
+//
+//            val testCode10 = """
+//                (or #t #t #f)
+//                """.trimIndent()
+//
+//            val nodes10 = parseNodeList(tokenize(testCode10))
+//            println(eval(parseProgram(nodes10)))
+//
+//            val testCode11 = """
+//                (or #t #f #f)
+//                """.trimIndent()
+//
+//            val nodes11 = parseNodeList(tokenize(testCode11))
+//            println(eval(parseProgram(nodes11)))
+//
+//            val testCode12 = """
+//                (or #f #t #f)
+//                """.trimIndent()
+//
+//            val nodes12 = parseNodeList(tokenize(testCode12))
+//            println(eval(parseProgram(nodes12)))
+//
+//            val testCode13 = """
+//                (or #f #f #f)
+//                """.trimIndent()
 
-            val testCode10 = """
-                (or #t #t)
-                """.trimIndent()
-
-            val nodes10 = parseNodeList(tokenize(testCode10))
-            println(eval(parseProgram(nodes10)))
-
-            val testCode11 = """
-                (or #t #f)
-                """.trimIndent()
-
-            val nodes11 = parseNodeList(tokenize(testCode11))
-            println(eval(parseProgram(nodes11)))
-
-            val testCode12 = """
-                (or #f #t)
-                """.trimIndent()
-
-            val nodes12 = parseNodeList(tokenize(testCode12))
-            println(eval(parseProgram(nodes12)))
-
-            val testCode13 = """
-                (or #f #f)
-                """.trimIndent()
-
-            val nodes13 = parseNodeList(tokenize(testCode13))
-            println(eval(parseProgram(nodes13)))
+//            val nodes13 = parseNodeList(tokenize(testCode13))
+//            println(eval(parseProgram(nodes13)))
 
 //            val testCode01 = """
 //                (if (= a 2)

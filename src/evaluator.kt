@@ -33,9 +33,9 @@ val OpHash = mapOf(
 )
 
 val primitiveProcedures = mapOf(
-    "car" to {operands : List<Exp>, env: Env ->  applyCar(operands, env)},
-    "cdr" to {operands : List<Exp>, env: Env  -> applyCdr(operands, env)},
-    "cons" to {operands : List<Exp>, env: Env  -> applyCons(operands, env)}
+    "car" to Exp.Procedure{args : List<Exp> -> applyCar(args)},
+    "cdr" to Exp.Procedure{args : List<Exp> -> applyCdr(args)},
+    "cons" to Exp.Procedure{args : List<Exp> -> applyCons(args)}
 )
 
 fun evalDefinition(v: Exp.Var, valueExp: Exp, env: Env): Env {
@@ -76,6 +76,12 @@ fun evalExp(exp: Exp, env: Env): Exp? {
                 }
             }
         }
+        is Exp.Lambda -> {
+            Exp.Procedure{args: List<Exp> ->
+                val args = args.map { evalExp(it, env) ?: throw Error() }
+                evalProgram(exp.body, extendEnv(exp.params, args, env))
+            }
+        }
         is Exp.ProcedureCall -> {
             val operator = exp.operator
             val operands = exp.operands
@@ -93,10 +99,11 @@ fun evalExp(exp: Exp, env: Env): Exp? {
                 is Exp.Var -> {
                     val procedure = primitiveProcedures[operator.name]
                     if(procedure != null ){
-                        procedure(operands, env)
+                        procedure.p(operands.map{evalExp(it, env) ?: throw Error("引数がnull $it")})
                     }
                     else {
-                        throw Error("未対応な関数 ${operator.name}")
+                        val procedure = findFromEnv(operator.name, env) as? Exp.Procedure ?: throw Error()
+                        procedure.p(operands.map { evalExp(it, env) ?: throw Error("引数がnull $it") })
                     }
                 }
                 else -> {
@@ -108,6 +115,17 @@ fun evalExp(exp: Exp, env: Env): Exp? {
             null
         }
     }
+}
+
+fun extendEnv(params: List<Exp.Var>, args: List<Exp>, env: Env): Env {
+    val thisEnv = mutableMapOf<String, Exp>()
+    if(params.count() != args.count()) {
+        throw Error("lambdaに渡された引数がパラメータの数に合わない")
+    }
+    for (i in 0 until params.count()) {
+        thisEnv[params[i].name] = args[i]
+    }
+    return Env(listOf(thisEnv) + env.lst)
 }
 
 fun getValue(exp: Exp, env: Env): Exp {
@@ -131,7 +149,7 @@ fun applyCalculate(op: Ops, operands: List<Exp>, env: Env) : Exp {
     return Exp.Num(result)
 }
 
-fun applyCar(operands: List<Exp>, env: Env): Exp {
+fun applyCar(operands: List<Exp>): Exp {
     if(operands.count() != 1) {
         throw Error("car $operands")
     }
@@ -140,7 +158,7 @@ fun applyCar(operands: List<Exp>, env: Env): Exp {
     return Exp.Quote(lst.lst.head)
 }
 
-fun applyCdr(operands: List<Exp>, env: Env): Exp {
+fun applyCdr(operands: List<Exp>): Exp {
     if(operands.count() != 1) {
         throw Error("cdr $operands")
     }
@@ -149,11 +167,11 @@ fun applyCdr(operands: List<Exp>, env: Env): Exp {
     return Exp.Quote(Datum.Lst(lst.lst.tail))
 }
 
-fun applyCons(operands: List<Exp>, env: Env) : Exp {
+fun applyCons(operands: List<Exp>) : Exp {
     if(operands.count() != 2) {
         throw Error("cons $operands")
     }
-    val car = evalExp(operands.head, env) ?: throw Error("carがnull $operands")
+    val car = operands.head
     val cadr = operands.tail.head as? Exp.Quote ?: throw Error("cons $operands")
     val cdrlst = cadr.value as? Datum.Lst ?: throw Error("cons, ${cadr.value}")
     val carDatum = converterExpToDatum(car)

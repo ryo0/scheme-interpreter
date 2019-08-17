@@ -49,12 +49,23 @@ class Main {
 //            println(eval(parseProgram(nodes05)))
 
             val testCode06 = """
-                (define x (+ 1 1))
-                x
+                (define x (+ 0 1))
+                (define y (+ 1 1))
+                (define z (+ 1 2))
+                (cons x (cons y (cons z '())))
                 """.trimIndent()
 
             val nodes06 = parseNodeList(tokenize(testCode06))
             println(eval(parseProgram(nodes06)))
+
+            val testCode07 = """
+                (define x3 (+ 1 1 1))
+                (define (plus1 x) (+ x 1))
+                (plus1 x3)
+                """.trimIndent()
+
+            val nodes07 = parseNodeList(tokenize(testCode07))
+            println(eval(parseProgram(nodes07)))
 //
 //            val testCode01 = """
 //                (if (= a 2)

@@ -41,7 +41,8 @@ sealed class Exp {
     data class Cond(val cc: List<CondClause>, val elseExp: Exp?) : Exp()
     data class Set(val variable: Var, val value: Exp) : Exp()
     data class Let(val varExps: List<VarExp>, val body: Program) : Exp()
-    data class Lambda(val vars: List<Var>, val body: Program) : Exp()
+    data class Lambda(val params: List<Var>, val body: Program) : Exp()
+    data class Procedure(val p: (List<Exp>) -> Exp?) : Exp()
     data class Quote(val value: Datum) : Exp()
     data class Begin(val exps: List<Exp>) : Exp()
 }

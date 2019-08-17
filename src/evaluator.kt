@@ -3,7 +3,8 @@ data class Env(val lst: List<MutableMap<String, Exp>>)
 val initialEnv =  mutableMapOf<String, Exp>(
     "car" to Exp.Procedure{args : List<Exp> -> applyCar(args)},
     "cdr" to Exp.Procedure{args : List<Exp> -> applyCdr(args)},
-    "cons" to Exp.Procedure{args : List<Exp> -> applyCons(args)}
+    "cons" to Exp.Procedure{args : List<Exp> -> applyCons(args)},
+    "null?" to Exp.Procedure{args : List<Exp> -> applyNullCheck(args)}
 )
 
 fun eval(p: Program): Exp? {
@@ -122,22 +123,11 @@ fun extendEnv(params: List<Exp.Var>, args: List<Exp>, env: Env): Env {
     return Env(listOf(thisEnv) + env.lst)
 }
 
-fun getValue(exp: Exp, env: Env): Exp {
-    if(exp is Exp.Num) {
-        return exp
-    }
-    else if(exp is Exp.Var) {
-        return findFromEnv(exp.name, env) ?: throw Error()
-    } else {
-        throw Error()
-    }
-}
-
 fun applyCalculate(op: Ops, operands: List<Exp>, env: Env) : Exp {
     val opLambda = OpHash[op] ?: throw Error()
-    val head = getValue(operands.head, env) as? Exp.Num ?: throw Error()
+    val head = evalExp(operands.head, env) as? Exp.Num ?: throw Error()
     val result = operands.tail.map {
-        val valueExp = getValue(it, env) as? Exp.Num ?: throw Error()
+        val valueExp = evalExp(it, env) as? Exp.Num ?: throw Error()
         valueExp.value
     } .foldRight(head.value, opLambda)
     return Exp.Num(result)
@@ -181,6 +171,19 @@ fun applyCons(operands: List<Exp>) : Exp {
     val carDatum = converterExpToDatum(car)
     val cdrDatum = cdrlst.lst
     return Exp.Quote(Datum.Lst(listOf(carDatum) + cdrDatum))
+}
+
+fun applyNullCheck(operands: List<Exp>): Exp {
+    if(operands.count() != 1) {
+        throw Error("null $operands")
+    }
+    val quotedLst = operands.first() as? Exp.Quote ?: throw Error("$operands")
+    val lst = quotedLst.value as? Datum.Lst ?: throw Error("$quotedLst")
+    if(lst.lst.count() == 0) {
+        return Exp.Bool(TF.True)
+    } else {
+        return Exp.Bool(TF.False)
+    }
 }
 
 fun convertDatumToExp(datum: Datum) : Exp {

@@ -2,70 +2,82 @@ class Main {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            val testCode00 = """
-                (if #t
-                    (/ 1 3 2 2)
-                    (* 6 6 6 2))
+//            val testCode00 = """
+//                (if #t
+//                    (/ 1 3 2 2)
+//                    (* 6 6 6 2))
+//                """.trimIndent()
+//
+//            val nodes0 = parseNodeList(tokenize(testCode00))
+//            println(eval(parseProgram(nodes0)))
+//
+//            val testCode01 = """
+//                (if #t
+//                    (- 3 1 1 1 3)
+//                    (- 1 1))
+//                """.trimIndent()
+//
+//            val nodes01 = parseNodeList(tokenize(testCode01))
+//            println(eval(parseProgram(nodes01)))
+//
+//            val testCode02 = """
+//                (car '(1 2 3))
+//                """.trimIndent()
+//
+//            val nodes02 = parseNodeList(tokenize(testCode02))
+//            println(eval(parseProgram(nodes02)))
+//
+//            val testCode03 = """
+//                (cdr '(1 2 3))
+//                """.trimIndent()
+//
+//            val nodes03 = parseNodeList(tokenize(testCode03))
+//            println(eval(parseProgram(nodes03)))
+//
+//            val testCode04 = """
+//                (cons 0 '(1 2 3))
+//                """.trimIndent()
+//
+//            val nodes04 = parseNodeList(tokenize(testCode04))
+//            println(eval(parseProgram(nodes04)))
+//
+//            val testCode05 = """
+//                (cons '(0 1) '(2 3))
+//                """.trimIndent()
+//
+//            val nodes05 = parseNodeList(tokenize(testCode05))
+//            println(eval(parseProgram(nodes05)))
+//
+//            val testCode06 = """
+//                (define x (+ 0 1))
+//                (define y (+ 1 1))
+//                (define z (+ 1 2))
+//                (cons x (cons y (cons z '())))
+//                """.trimIndent()
+//
+//            val nodes06 = parseNodeList(tokenize(testCode06))
+//            println(eval(parseProgram(nodes06)))
+//
+//            val testCode07 = """
+//                (define x3 (+ 1 1 1))
+//                (define (plus1 x) (+ x 1))
+//                (plus1 x3)
+//                """.trimIndent()
+
+//            val nodes07 = parseNodeList(tokenize(testCode07))
+//            println(eval(parseProgram(nodes07)))
+
+            val testCode08 = """
+                (define (len lst) 
+                    (if (null? lst)
+                    0
+                    (+ 1 (len (cdr lst))))
+                )
+                (len '(1 2 3))
                 """.trimIndent()
 
-            val nodes0 = parseNodeList(tokenize(testCode00))
-            println(eval(parseProgram(nodes0)))
-
-            val testCode01 = """
-                (if #t
-                    (- 3 1 1 1 3)
-                    (- 1 1))
-                """.trimIndent()
-
-            val nodes01 = parseNodeList(tokenize(testCode01))
-            println(eval(parseProgram(nodes01)))
-
-            val testCode02 = """
-                (car '(1 2 3))
-                """.trimIndent()
-
-            val nodes02 = parseNodeList(tokenize(testCode02))
-            println(eval(parseProgram(nodes02)))
-
-            val testCode03 = """
-                (cdr '(1 2 3))
-                """.trimIndent()
-
-            val nodes03 = parseNodeList(tokenize(testCode03))
-            println(eval(parseProgram(nodes03)))
-
-            val testCode04 = """
-                (cons 0 '(1 2 3))
-                """.trimIndent()
-
-            val nodes04 = parseNodeList(tokenize(testCode04))
-            println(eval(parseProgram(nodes04)))
-
-            val testCode05 = """
-                (cons '(0 1) '(2 3))
-                """.trimIndent()
-
-            val nodes05 = parseNodeList(tokenize(testCode05))
-            println(eval(parseProgram(nodes05)))
-
-            val testCode06 = """
-                (define x (+ 0 1))
-                (define y (+ 1 1))
-                (define z (+ 1 2))
-                (cons x (cons y (cons z '())))
-                """.trimIndent()
-
-            val nodes06 = parseNodeList(tokenize(testCode06))
-            println(eval(parseProgram(nodes06)))
-
-            val testCode07 = """
-                (define x3 (+ 1 1 1))
-                (define (plus1 x) (+ x 1))
-                (plus1 x3)
-                """.trimIndent()
-
-            val nodes07 = parseNodeList(tokenize(testCode07))
-            println(eval(parseProgram(nodes07)))
+            val nodes08 = parseNodeList(tokenize(testCode08))
+            println(eval(parseProgram(nodes08)))
 //
 //            val testCode01 = """
 //                (if (= a 2)

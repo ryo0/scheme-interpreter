@@ -143,6 +143,9 @@ fun tokenize(inputStr: String): List<Token> {
 
 fun getAtom(str: String): String {
     val i = str.indexOfFirst { it == ' ' || it == '\n' || it == '(' || it == ')' }
+    if(i == -1) {
+        return str
+    }
     return str.slice(0 until i)
 }
 

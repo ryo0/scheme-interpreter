@@ -331,12 +331,12 @@ fun parseDatum(node: Node): Datum {
 }
 
 fun parseDatumNotLst(leaf: Node.Leaf): Datum {
-    return when (val leaf = leaf.l) {
+    return when (val l = leaf.l) {
         is Token.Str -> {
-            Datum.Symbol(leaf.name)
+            Datum.Symbol(l.name)
         }
         is Token.Var -> {
-            Datum.Symbol(leaf.name)
+            Datum.Symbol(l.name)
         }
         is Token.True -> {
             Datum.Bool(TF.True)
@@ -345,10 +345,10 @@ fun parseDatumNotLst(leaf: Node.Leaf): Datum {
             Datum.Bool(TF.False)
         }
         is Token.Num -> {
-            Datum.Num(leaf.value)
+            Datum.Num(l.value)
         }
         else -> {
-            Datum._Token(leaf)
+            Datum._Token(l)
         }
     }
 }

@@ -8,7 +8,9 @@ val initialEnv = mutableMapOf<String, Exp>(
     "eq?" to Exp.Procedure { args: List<Exp> -> applyEqualCheck(args) },
     "and" to Exp.Procedure { args: List<Exp> -> applyAnd(args) },
     "or" to Exp.Procedure { args: List<Exp> -> applyOr(args) },
-    "print" to Exp.Procedure { args: List<Exp> -> applyPrint(args) }
+    "print" to Exp.Procedure { args: List<Exp> -> applyPrint(args) },
+    ">" to Exp.Procedure { args: List<Exp> -> applyGreaterThan(args) },
+    "<" to Exp.Procedure { args: List<Exp> -> applyLessThan(args) }
 )
 
 fun eval(p: Program): Exp? {
@@ -216,6 +218,33 @@ fun applyOr(operands: List<Exp>): Exp {
     }.foldRight(head.b, { a: TF, b: TF -> TFOr(b, a) })
     return Exp.Bool(result)
 }
+
+fun applyGreaterThan(operands: List<Exp>): Exp {
+    if (operands.count() != 2) {
+        throw Error("> 引数が2つでない $operands")
+    }
+    val first = operands.head as? Exp.Num ?: throw Error(">に渡された値が数値ではない $operands")
+    val second = operands.tail.head as? Exp.Num ?: throw Error(">に渡された値が数値ではない $operands")
+    if (first.value > second.value) {
+        return Exp.Bool(TF.True)
+    } else {
+        return Exp.Bool(TF.False)
+    }
+}
+
+fun applyLessThan(operands: List<Exp>): Exp {
+    if (operands.count() != 2) {
+        throw Error("< 引数が2つでない $operands")
+    }
+    val first = operands.head as? Exp.Num ?: throw Error("<に渡された値が数値ではない $operands")
+    val second = operands.tail.head as? Exp.Num ?: throw Error("<に渡された値が数値ではない $operands")
+    if (first.value < second.value) {
+        return Exp.Bool(TF.True)
+    } else {
+        return Exp.Bool(TF.False)
+    }
+}
+
 
 fun applyPrint(operands: List<Exp>): Exp? {
     if (operands.count() < 1) {

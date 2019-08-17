@@ -1,3 +1,12 @@
+fun interpret(code: String): String {
+    val exp = eval(parseProgram(parseNodeList(tokenize(code))))
+    if (exp == null) {
+        return ""
+    } else {
+        return convertExpToString(exp)
+    }
+}
+
 class Main {
     companion object {
         @JvmStatic
@@ -74,25 +83,25 @@ class Main {
                     (+ 1 (len (cdr lst))))
                 )
                 (print '(1 2 (3 4) 5 6 (7 ((8)))))
-                (print (len '(1 2 3 4 5)))
+                (print (len '(1.0 2.0 (3.0 4.0) 5.0 6.0 (7.0 ((8.0))))))
                 """.trimIndent()
 
-            val nodes08 = parseNodeList(tokenize(testCode08))
-            println(eval(parseProgram(nodes08)))
+            interpret(testCode08)
 
             val testCode09 = """
                 (print (eq? '(- 3 2) '(- 3 2)))
                 """.trimIndent()
 
-            val nodes09 = parseNodeList(tokenize(testCode09))
-            println(eval(parseProgram(nodes09)))
-//
-//            val testCode10 = """
-//                (or #t #t #f)
-//                """.trimIndent()
-//
-//            val nodes10 = parseNodeList(tokenize(testCode10))
-//            println(eval(parseProgram(nodes10)))
+            interpret(testCode09)
+
+            val testCode10 = """
+                (print (> 1 2))
+                (print (> 2 1))
+                (print (< 2 1))
+                (print (< 1 2))
+                """.trimIndent()
+
+            interpret(testCode10)
 //
 //            val testCode11 = """
 //                (or #t #f #f)

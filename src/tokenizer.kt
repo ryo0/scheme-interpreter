@@ -33,9 +33,7 @@ val symbolHash = mapOf(
     '\'' to Token.Quote,
     '(' to Token.LParen,
     ')' to Token.RParen,
-    '=' to Token.Equal,
-    '<' to Token.LessThan,
-    '>' to Token.GreaterThan
+    '=' to Token.Equal
 )
 
 val keywordHash = mapOf(

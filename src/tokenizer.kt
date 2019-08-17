@@ -21,7 +21,7 @@ sealed class Token {
     object If : Token()
     object Else : Token()
     object Let : Token()
-    object Begin: Token()
+    object Begin : Token()
 
 }
 
@@ -79,7 +79,7 @@ fun tokenize(inputStr: String): List<Token> {
         when (char) {
             in symbolHash.keys -> {
                 if (char == '\'') {
-                    val strFromIToLast = str.slice(i+1 until str.length)
+                    val strFromIToLast = str.slice(i + 1 until str.length)
                     val quoteString = getQuoteString(strFromIToLast)
                     val quoteExpToken = tokenize(quoteString) // (1 2 3)
                     // (quote (1 2 3))にしたい
@@ -143,7 +143,7 @@ fun tokenize(inputStr: String): List<Token> {
 
 fun getAtom(str: String): String {
     val i = str.indexOfFirst { it == ' ' || it == '\n' || it == '(' || it == ')' }
-    if(i == -1) {
+    if (i == -1) {
         return str
     }
     return str.slice(0 until i)
@@ -173,8 +173,8 @@ fun getQuoteString(str: String): String {
                 }
                 i++
             }
-            ' ' , '\n' -> {
-                if(parenCounter != 0) {
+            ' ', '\n' -> {
+                if (parenCounter != 0) {
                     i++
                     result += " "
                 } else {

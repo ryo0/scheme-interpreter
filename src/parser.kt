@@ -290,12 +290,12 @@ fun parseVarExpList(node: Node.Nodes): List<VarExp> {
 //    ((a b) (c d))
     val ns = node.ns
     return ns.map {
-        if(it !is Node.Nodes) {
+        if (it !is Node.Nodes) {
             throw Error("構文エラー let $node")
         }
         val car = car(it.ns)
         val cadr = cadr(it.ns)
-        if(car is Node.Leaf && cadr is Node.Nodes) {
+        if (car is Node.Leaf && cadr is Node.Nodes) {
             val name = parseExp(car) as? Exp.Var ?: throw Error("構文エラー let $node")
             val exp = parseExp(cadr)
             VarExp(name, exp)
@@ -375,7 +375,7 @@ fun parseLambda(node: Node.Nodes): Exp.Lambda {
     return Exp.Lambda(paramList, body)
 }
 
-fun parseBegin(node: Node.Nodes) : Exp.Begin {
+fun parseBegin(node: Node.Nodes): Exp.Begin {
 //    (begin (+ 1 2) (+ 3 4) (+ 5 6))
     val ns = node.ns
     val cdr = cdr(ns)

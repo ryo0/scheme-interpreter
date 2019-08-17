@@ -23,6 +23,7 @@ sealed class Datum {
     data class Bool(val b: TF) : Datum()
     data class Num(val value: Float) : Datum()
     data class Symbol(val s: String) : Datum()
+    data class _Token(val t: Token): Datum()
     data class Lst(val lst: List<Datum>) : Datum()
 }
 

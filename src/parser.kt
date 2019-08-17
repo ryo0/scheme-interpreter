@@ -348,7 +348,7 @@ fun parseDatumNotLst(leaf: Node.Leaf): Datum {
             Datum.Num(leaf.value)
         }
         else -> {
-            throw Error("構文エラー $leaf")
+            Datum._Token(leaf)
         }
     }
 }

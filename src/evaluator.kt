@@ -4,7 +4,10 @@ val initialEnv =  mutableMapOf<String, Exp>(
     "car" to Exp.Procedure{args : List<Exp> -> applyCar(args)},
     "cdr" to Exp.Procedure{args : List<Exp> -> applyCdr(args)},
     "cons" to Exp.Procedure{args : List<Exp> -> applyCons(args)},
-    "null?" to Exp.Procedure{args : List<Exp> -> applyNullCheck(args)}
+    "null?" to Exp.Procedure{args : List<Exp> -> applyNullCheck(args)},
+    "eq?" to Exp.Procedure{args : List<Exp> -> applyEqualCheck(args)},
+    "and" to Exp.Procedure{args : List<Exp> -> applyAnd(args)},
+    "or" to Exp.Procedure{args : List<Exp> -> applyOr(args)}
 )
 
 fun eval(p: Program): Exp? {
@@ -79,8 +82,8 @@ fun evalExp(exp: Exp, env: Env): Exp? {
         }
         is Exp.Lambda -> {
             Exp.Procedure{args: List<Exp> ->
-                val args = args.map { evalExp(it, env) ?: throw Error() }
-                evalProgram(exp.body, extendEnv(exp.params, args, env))
+                val evaledArgs = args.map { evalExp(it, env) ?: throw Error() }
+                evalProgram(exp.body, extendEnv(exp.params, evaledArgs, env))
             }
         }
         is Exp.ProcedureCall -> {
@@ -133,16 +136,6 @@ fun applyCalculate(op: Ops, operands: List<Exp>, env: Env) : Exp {
     return Exp.Num(result)
 }
 
-//fun applyBoolCalc(op: Ops, operands: List<Exp>, env: Env) : Exp {
-//    val opLambda = OpHash[op] ?: throw Error()
-//    val head = getValue(operands.head, env) as? Exp.Bool ?: throw Error()
-//    val result = operands.tail.map {
-//        val valueExp = getValue(it, env) as? Exp.Bool ?: throw Error()
-//        valueExp.value
-//    } .foldRight(head.value, opLambda)
-//    return Exp.Bool(result)
-//}
-
 fun applyCar(operands: List<Exp>): Exp {
     if(operands.count() != 1) {
         throw Error("car $operands")
@@ -183,6 +176,59 @@ fun applyNullCheck(operands: List<Exp>): Exp {
         return Exp.Bool(TF.True)
     } else {
         return Exp.Bool(TF.False)
+    }
+}
+
+fun applyEqualCheck(operands: List<Exp>): Exp {
+    if(operands.count() != 2) {
+        throw Error("eq? 引数が2つでない $operands")
+    }
+    val first = operands[0]
+    val second = operands[1]
+    if(first == second) {
+        return Exp.Bool(TF.True)
+    } else {
+        return Exp.Bool(TF.False)
+    }
+}
+
+fun applyAnd(operands: List<Exp>): Exp {
+    if(operands.count() < 2) {
+        throw Error("and 引数が2つ未満 $operands")
+    }
+    val head = operands.head as? Exp.Bool ?: throw Error()
+    val result = operands.tail.map {
+        val valueExp = it as? Exp.Bool?: throw Error()
+        valueExp.b
+    } .foldRight(head.b, {a: TF, b: TF -> TFAnd(b, a)})
+    return Exp.Bool(result)
+}
+
+fun applyOr(operands: List<Exp>): Exp {
+    if(operands.count() < 2) {
+        throw Error("and 引数が2つ未満 $operands")
+    }
+    val head = operands.head as? Exp.Bool ?: throw Error()
+    val result = operands.tail.map {
+        val valueExp = it as? Exp.Bool?: throw Error()
+        valueExp.b
+    } .foldRight(head.b, {a: TF, b: TF -> TFOr(b, a)})
+    return Exp.Bool(result)
+}
+
+fun TFAnd(a: TF, b: TF): TF {
+    if (a == TF.True && b == TF.True) {
+        return TF.True
+    } else {
+        return TF.False
+    }
+}
+
+fun TFOr(a: TF, b: TF): TF {
+    if (a == TF.False && b == TF.False) {
+        return TF.False
+    } else {
+        return TF.True
     }
 }
 

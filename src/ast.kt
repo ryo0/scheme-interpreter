@@ -7,7 +7,7 @@ sealed class Node {
 data class Program(val p: List<Form>)
 
 enum class Ops {
-    Plus, Minus, Asterisk, Slash, Equal, LessThan, GreaterThan
+    Plus, Minus, Asterisk, Slash, Equal, LessThan, GreaterThan, And, Or
 }
 
 enum class TF {

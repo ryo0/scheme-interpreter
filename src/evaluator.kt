@@ -1,7 +1,13 @@
 data class Env(val lst: List<MutableMap<String, Exp>>)
 
+val initialEnv =  mutableMapOf<String, Exp>(
+    "car" to Exp.Procedure{args : List<Exp> -> applyCar(args)},
+    "cdr" to Exp.Procedure{args : List<Exp> -> applyCdr(args)},
+    "cons" to Exp.Procedure{args : List<Exp> -> applyCons(args)}
+)
+
 fun eval(p: Program): Exp? {
-    return evalProgram(p, Env(listOf(mutableMapOf())))
+    return evalProgram(p, Env(listOf(initialEnv)))
 }
 
 fun evalProgram(p: Program, env: Env): Exp?{
@@ -30,12 +36,6 @@ val OpHash = mapOf(
     Ops.Minus to {a: Float, b: Float -> b - a},
     Ops.Asterisk to {a: Float, b: Float -> b * a},
     Ops.Slash to {a: Float, b: Float -> b / a}
-)
-
-val primitiveProcedures = mapOf(
-    "car" to Exp.Procedure{args : List<Exp> -> applyCar(args)},
-    "cdr" to Exp.Procedure{args : List<Exp> -> applyCdr(args)},
-    "cons" to Exp.Procedure{args : List<Exp> -> applyCons(args)}
 )
 
 fun evalDefinition(v: Exp.Var, valueExp: Exp, env: Env): Env {
@@ -97,14 +97,8 @@ fun evalExp(exp: Exp, env: Env): Exp? {
                     }
                 }
                 is Exp.Var -> {
-                    val procedure = primitiveProcedures[operator.name]
-                    if(procedure != null ){
-                        procedure.p(operands.map{evalExp(it, env) ?: throw Error("引数がnull $it")})
-                    }
-                    else {
-                        val procedure = findFromEnv(operator.name, env) as? Exp.Procedure ?: throw Error()
-                        procedure.p(operands.map { evalExp(it, env) ?: throw Error("引数がnull $it") })
-                    }
+                    val procedure = findFromEnv(operator.name, env) as? Exp.Procedure ?: throw Error()
+                    procedure.p(operands.map { evalExp(it, env) ?: throw Error("引数がnull $it") })
                 }
                 else -> {
                     throw Error()
@@ -148,6 +142,16 @@ fun applyCalculate(op: Ops, operands: List<Exp>, env: Env) : Exp {
     } .foldRight(head.value, opLambda)
     return Exp.Num(result)
 }
+
+//fun applyBoolCalc(op: Ops, operands: List<Exp>, env: Env) : Exp {
+//    val opLambda = OpHash[op] ?: throw Error()
+//    val head = getValue(operands.head, env) as? Exp.Bool ?: throw Error()
+//    val result = operands.tail.map {
+//        val valueExp = getValue(it, env) as? Exp.Bool ?: throw Error()
+//        valueExp.value
+//    } .foldRight(head.value, opLambda)
+//    return Exp.Bool(result)
+//}
 
 fun applyCar(operands: List<Exp>): Exp {
     if(operands.count() != 1) {

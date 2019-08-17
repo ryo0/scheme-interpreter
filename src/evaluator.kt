@@ -10,7 +10,9 @@ val initialEnv = mutableMapOf<String, Exp>(
     "or" to Exp.Procedure { args: List<Exp> -> applyOr(args) },
     "print" to Exp.Procedure { args: List<Exp> -> applyPrint(args) },
     ">" to Exp.Procedure { args: List<Exp> -> applyGreaterThan(args) },
-    "<" to Exp.Procedure { args: List<Exp> -> applyLessThan(args) }
+    "<" to Exp.Procedure { args: List<Exp> -> applyLessThan(args) },
+    "error" to Exp.Procedure { args: List<Exp> -> applyError(args) },
+    "list" to Exp.Procedure { args: List<Exp> -> applyList(args) }
 )
 
 fun eval(p: Program): Exp? {
@@ -245,6 +247,27 @@ fun applyLessThan(operands: List<Exp>): Exp {
     }
 }
 
+fun applyList(operands: List<Exp>): Exp {
+    if (operands.count() == 0) {
+        throw Error("list 引数が1つもない")
+    }
+    return Exp.Quote(Datum.Lst(operands.map {
+        converterExpToDatum(it)
+    }))
+}
+
+fun applyError(operands: List<Exp>): Exp? {
+    if (operands.count() < 1) {
+        throw Error("error 引数が1つもない $operands")
+    }
+    val first = operands.first() as? Exp.Symbol ?: throw Error("errorに渡された1つめの引数が文字列でない")
+    val second = if (operands.count() == 2) {
+        operands[1].toString()
+    } else {
+        ""
+    }
+    throw Error("${first.s}  $second")
+}
 
 fun applyPrint(operands: List<Exp>): Exp? {
     if (operands.count() < 1) {

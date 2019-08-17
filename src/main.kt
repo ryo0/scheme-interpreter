@@ -99,9 +99,11 @@ class Main {
                 (print (> 2 1))
                 (print (< 2 1))
                 (print (< 1 2))
+                (print (cdr (list 1 2 3)))
                 """.trimIndent()
 
             interpret(testCode10)
+
 //
 //            val testCode11 = """
 //                (or #t #f #f)

@@ -1,7 +1,7 @@
 import java.io.File
 
 fun interpret(code: String): String {
-    val stdlib = File("src/stdlib.scm").readText()
+    val stdlib = File("src/scm/stdlib.scm").readText()
     val exp = eval(parseProgram(parseNodeList(tokenize(stdlib + "\n" + code))))
     if (exp == null) {
         return ""
@@ -114,8 +114,8 @@ class Main {
 //
 //            interpret(testCode11)
 //
-//            val deriv = File("src/deriv.scm").readText()
-//            interpret(deriv)
+            val deriv = File("src/scm/deriv.scm").readText()
+            interpret(deriv)
 
 //            1.0
 //            'y
@@ -130,8 +130,8 @@ class Main {
 //            (1.0 + ((3.0 * (x + x)) + (1.0 + ((x * (((x + x) * y) + (2.0 * (y * x)))) + ((x + x) * y * x)))))
 //            (x * ((x + x) * x))
 //
-//            val tree = File("src/tree.scm").readText()
-//            interpret(tree)
+            val tree = File("src/scm/tree.scm").readText()
+            interpret(tree)
 //
 //            (7.0 (3.0 (1.0 () ()) (5.0 () ())) (9.0 () (11.0 () ())))
 //            (3.0 (1.0 () ()) (7.0 (5.0 () ()) (9.0 () ())))
@@ -157,10 +157,10 @@ class Main {
             val nodes12 = parseNodeList(tokenize(testCode12))
             println(eval(parseProgram(nodes12)))
 
-//            val huffman = File("src/huffman.scm").readText()
+//            val huffman = File("src/scm/huffman.scm").readText()
 //            interpret(huffman)
 
-            val bank = File("src/bank.scm").readText()
+            val bank = File("src/scm/bank.scm").readText()
             interpret(bank)
 //
 //            val testCode13 = """

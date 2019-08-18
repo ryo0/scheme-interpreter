@@ -163,14 +163,12 @@ class Main {
             val bank = File("src/scm/bank.scm").readText()
             interpret(bank)
 
-//            val testCode01 = """
-//                (if (= a 2)
-//                    (+ a 1))
-//                """.trimIndent()
-//
-//            val nodes1 = parseNodeList(tokenize(testCode01))
-//            println(parseProgram(nodes1))
-//
+            val testCode01 = """
+                (print ((lambda (a) a) "b"))
+                """.trimIndent()
+
+            interpret(testCode01)
+
 //            val testCode0 = """
 //                (define x 0)
 //            """.trimIndent()

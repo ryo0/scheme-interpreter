@@ -127,7 +127,7 @@ fun evalExp(exp: Exp, env: Env): Exp? {
 //                    }} ")
                     procedure.p(operands.map { evalExp(it, env) ?: throw Error("引数がnull $it") })
                 }
-                is Exp.ProcedureCall -> {
+                is Exp.ProcedureCall, is Exp.Lambda -> {
                     val procedure =
                         evalExp(operator, env) as? Exp.Procedure ?: throw Error("定義されてない手続き: ${operator}")
                     procedure.p(operands.map { evalExp(it, env) ?: throw Error("引数がnull $it") })

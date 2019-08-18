@@ -99,10 +99,25 @@ class Main {
                 (print (> 2 1))
                 (print (< 2 1))
                 (print (< 1 2))
-                (print (cdr (list 1 2 3)))
+                (print (cdr (list 1 '(2 3) 4)))
                 """.trimIndent()
 
             interpret(testCode10)
+
+            val testCode11 = """
+(define (make-sum a1 a2)
+  (cond ((number?? a1 0) a2)
+        ((number?? a2 0) a1)
+        ((and (number? a1) (number? a2)) (+ a1 a2))
+        (else (list a1 '+ a2))))
+
+(define (number?? exp num)
+  (and (number? exp) (= exp num)))
+(print (make-sum '(x + 2) '(y + z)))
+(print (make-sum 2 1))
+                """.trimIndent()
+
+            interpret(testCode11)
 
 //
 //            val testCode11 = """

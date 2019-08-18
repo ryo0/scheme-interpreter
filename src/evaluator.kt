@@ -6,13 +6,15 @@ val initialEnv = mutableMapOf<String, Exp>(
     "cons" to Exp.Procedure { args: List<Exp> -> applyCons(args) },
     "null?" to Exp.Procedure { args: List<Exp> -> applyNullCheck(args) },
     "eq?" to Exp.Procedure { args: List<Exp> -> applyEqualCheck(args) },
+    "=" to Exp.Procedure { args: List<Exp> -> applyEqualCheck(args) },
     "and" to Exp.Procedure { args: List<Exp> -> applyAnd(args) },
     "or" to Exp.Procedure { args: List<Exp> -> applyOr(args) },
     "print" to Exp.Procedure { args: List<Exp> -> applyPrint(args) },
     ">" to Exp.Procedure { args: List<Exp> -> applyGreaterThan(args) },
     "<" to Exp.Procedure { args: List<Exp> -> applyLessThan(args) },
     "error" to Exp.Procedure { args: List<Exp> -> applyError(args) },
-    "list" to Exp.Procedure { args: List<Exp> -> applyList(args) }
+    "list" to Exp.Procedure { args: List<Exp> -> applyList(args) },
+    "number?" to Exp.Procedure { args: List<Exp> -> applyCheckNumber(args) }
 )
 
 fun eval(p: Program): Exp? {
@@ -74,16 +76,10 @@ fun evalExp(exp: Exp, env: Env): Exp? {
             findFromEnv(exp.name, env)
         }
         is Exp.If -> {
-            if (isTrue(evalExp(exp.cond, env))) {
-                evalExp(exp.consequence, env)
-            } else {
-                val alt = exp.alternative
-                if (alt != null) {
-                    evalExp(alt, env)
-                } else {
-                    null
-                }
-            }
+            evalIf(exp, env)
+        }
+        is Exp.Cond -> {
+            evalCond(exp, env)
         }
         is Exp.Lambda -> {
             Exp.Procedure { args: List<Exp> ->
@@ -118,6 +114,32 @@ fun evalExp(exp: Exp, env: Env): Exp? {
             null
         }
     }
+}
+
+fun evalIf(exp: Exp.If, env: Env): Exp? {
+    return if (isTrue(evalExp(exp.cond, env))) {
+        evalExp(exp.consequence, env)
+    } else {
+        val alt = exp.alternative
+        if (alt != null) {
+            evalExp(alt, env)
+        } else {
+            null
+        }
+    }
+}
+
+fun evalCond(exp: Exp.Cond, env: Env): Exp? {
+    val trueCCs = exp.cc.filter { isTrue(evalExp(it.test, env)) }
+    if (trueCCs.count() == 0) {
+        val elseExp = exp.elseExp ?: throw Error("cond: else節が無い")
+        return evalExp(elseExp, env)
+    }
+    var result: Exp? = null
+    trueCCs.first().consequence.forEach {
+        result = evalExp(it, env)
+    }
+    return result
 }
 
 fun extendEnv(params: List<Exp.Var>, args: List<Exp>, env: Env): Env {
@@ -182,6 +204,18 @@ fun applyNullCheck(operands: List<Exp>): Exp {
     } else {
         return Exp.Bool(TF.False)
     }
+}
+
+fun applyCheckNumber(operands: List<Exp>): Exp {
+    if (operands.count() != 1) {
+        throw Error("number?の引数が1つでない $operands")
+    }
+    if (operands.first() is Exp.Num) {
+        return Exp.Bool(TF.True)
+    } else {
+        return Exp.Bool(TF.False)
+    }
+
 }
 
 fun applyEqualCheck(operands: List<Exp>): Exp {
@@ -354,8 +388,11 @@ fun convertDatumToExp(datum: Datum): Exp {
         Exp.Symbol(datum.s)
     } else if (datum is Datum.Lst) {
         Exp.Quote(Datum.Lst(datum.lst))
+    } else if (datum is Datum._Token) {
+        val token = tokenHash[datum.t] ?: throw Error()
+        Exp.Symbol(token.toString())
     } else {
-        throw Error("変換できない $datum")
+        throw Error()
     }
 }
 

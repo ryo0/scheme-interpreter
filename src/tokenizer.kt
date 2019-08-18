@@ -32,9 +32,20 @@ val symbolHash = mapOf(
     '/' to Token.Slash,
     '\'' to Token.Quote,
     '(' to Token.LParen,
-    ')' to Token.RParen,
-    '=' to Token.Equal
+    ')' to Token.RParen
 )
+
+val tokenHash = mapOf(
+    Token.Plus to '+',
+    Token.Minus to '-',
+    Token.Asterisk to '*',
+    Token.Slash to '/',
+    Token.Quote to '\'',
+    Token.LParen to '(',
+    Token.RParen to ')'
+)
+
+val x = tokenHash[Token.Plus]
 
 val keywordHash = mapOf(
     "define" to Token.Define,

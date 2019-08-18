@@ -100,6 +100,9 @@ fun evalExp(exp: Exp, env: Env): Exp? {
         is Exp.Begin -> {
             evalBegin(exp, env)
         }
+        is Exp.Set -> {
+            evalSet(exp, env)
+        }
         is Exp.ProcedureCall -> {
             val operator = exp.operator
             val operands = exp.operands
@@ -139,6 +142,21 @@ fun evalBegin(exp: Exp.Begin, env: Env): Exp? {
     return exp.exps.map {
         evalExp(it, env)
     }.last()
+}
+
+fun evalSet(exp: Exp.Set, env: Env): Exp? {
+    var found = false
+    env.lst.forEach {
+        val variable = it[exp.variable.name]
+        if (variable != null) {
+            it[exp.variable.name] = evalExp(exp.value, env) ?: throw Error("代入値がありません ${exp.value}")
+            found = true
+        }
+    }
+    if (!found) {
+        throw Error("未定義の値に代入は出来ません ${exp.variable}")
+    }
+    return Exp.Quote(Datum.Symbol("ok"))
 }
 
 fun evalLet(exp: Exp.Let, env: Env): Exp? {

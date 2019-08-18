@@ -395,10 +395,5 @@ fun parseLambda(node: Node.Nodes): Exp.Lambda {
 
 fun parseBegin(node: Node.Nodes): Exp.Begin {
 //    (begin (+ 1 2) (+ 3 4) (+ 5 6))
-    val ns = node.ns
-    val cdr = cdr(ns)
-    val exps = cdr.map {
-        parseExp(it)
-    }
-    return Exp.Begin(exps)
+    return Exp.Begin(parseProgram(node.ns.tail))
 }

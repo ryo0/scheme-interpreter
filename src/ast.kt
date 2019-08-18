@@ -45,7 +45,7 @@ sealed class Exp {
     data class Lambda(val params: List<Var>, val body: Program) : Exp()
     data class Procedure(val p: (List<Exp>) -> Exp?) : Exp()
     data class Quote(val value: Datum) : Exp()
-    data class Begin(val exps: List<Exp>) : Exp()
+    data class Begin(val program: Program) : Exp()
     data class And(val operands: List<Exp>) : Exp()
     data class Or(val operands: List<Exp>) : Exp()
 }

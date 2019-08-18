@@ -144,9 +144,7 @@ fun evalExp(exp: Exp, env: Env): Exp? {
 }
 
 fun evalBegin(exp: Exp.Begin, env: Env): Exp? {
-    return exp.exps.map {
-        evalExp(it, env)
-    }.last()
+    return evalProgram(exp.program, env)
 }
 
 fun evalSet(exp: Exp.Set, env: Env): Exp? {

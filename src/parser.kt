@@ -220,6 +220,12 @@ fun parseExp(node: Node): Exp {
                         is Token.Begin -> {
                             return parseBegin(node)
                         }
+                        is Token.And -> {
+                            return parseAnd(node)
+                        }
+                        is Token.Or -> {
+                            return parseOr(node)
+                        }
                         else -> {
                             return parseProcedureCall(node)
                         }
@@ -242,6 +248,18 @@ fun parseIf(node: Node.Nodes): Exp.If {
     } else {
         return Exp.If(parseExp(cadr), parseExp(caddr), null)
     }
+}
+
+fun parseAnd(node: Node.Nodes): Exp.And {
+    val ns = node.ns
+    val cdr = cdr(ns)
+    return Exp.And(cdr.map { parseExp(it) })
+}
+
+fun parseOr(node: Node.Nodes): Exp.Or {
+    val ns = node.ns
+    val cdr = cdr(ns)
+    return Exp.Or(cdr.map { parseExp(it) })
 }
 
 fun parseCond(node: Node.Nodes): Exp.Cond {

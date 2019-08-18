@@ -4,17 +4,18 @@ val initialEnv = mutableMapOf<String, Exp>(
     "car" to Exp.Procedure { args: List<Exp> -> applyCar(args) },
     "cdr" to Exp.Procedure { args: List<Exp> -> applyCdr(args) },
     "cons" to Exp.Procedure { args: List<Exp> -> applyCons(args) },
-    "null?" to Exp.Procedure { args: List<Exp> -> applyNullCheck(args) },
+    "null?" to Exp.Procedure { args: List<Exp> -> applyCheckNukll(args) },
     "eq?" to Exp.Procedure { args: List<Exp> -> applyEqualCheck(args) },
     "=" to Exp.Procedure { args: List<Exp> -> applyEqualCheck(args) },
-    "and" to Exp.Procedure { args: List<Exp> -> applyAnd(args) },
-    "or" to Exp.Procedure { args: List<Exp> -> applyOr(args) },
     "print" to Exp.Procedure { args: List<Exp> -> applyPrint(args) },
     ">" to Exp.Procedure { args: List<Exp> -> applyGreaterThan(args) },
     "<" to Exp.Procedure { args: List<Exp> -> applyLessThan(args) },
     "error" to Exp.Procedure { args: List<Exp> -> applyError(args) },
     "list" to Exp.Procedure { args: List<Exp> -> applyList(args) },
-    "number?" to Exp.Procedure { args: List<Exp> -> applyCheckNumber(args) }
+    "number?" to Exp.Procedure { args: List<Exp> -> applyCheckNumber(args) },
+    "symbol?" to Exp.Procedure { args: List<Exp> -> applyCheckSymbol(args) },
+    "pair?" to Exp.Procedure { args: List<Exp> -> applyCheckPair(args) }
+
 )
 
 fun eval(p: Program): Exp? {
@@ -81,6 +82,12 @@ fun evalExp(exp: Exp, env: Env): Exp? {
         is Exp.Cond -> {
             evalCond(exp, env)
         }
+        is Exp.And -> {
+            evalAnd(exp, env)
+        }
+        is Exp.Or -> {
+            evalOr(exp, env)
+        }
         is Exp.Lambda -> {
             Exp.Procedure { args: List<Exp> ->
                 val evaledArgs = args.map { evalExp(it, env) ?: throw Error() }
@@ -103,6 +110,7 @@ fun evalExp(exp: Exp, env: Env): Exp? {
                 }
                 is Exp.Var -> {
                     val procedure = findFromEnv(operator.name, env) as? Exp.Procedure ?: throw Error()
+//                    println("${operator.name}, ${operands.map { evalExp(it, env) }} ")
                     procedure.p(operands.map { evalExp(it, env) ?: throw Error("引数がnull $it") })
                 }
                 else -> {
@@ -142,6 +150,28 @@ fun evalCond(exp: Exp.Cond, env: Env): Exp? {
     return result
 }
 
+fun evalAnd(exp: Exp.And, env: Env): Exp? {
+    val operands = exp.operands
+    operands.forEach {
+        val result = evalExp(it, env)
+        if (result is Exp.Bool && result.b == TF.False) {
+            return Exp.Bool(TF.False)
+        }
+    }
+    return Exp.Bool(TF.True)
+}
+
+fun evalOr(exp: Exp.Or, env: Env): Exp? {
+    val operands = exp.operands
+    operands.forEach {
+        val result = evalExp(it, env)
+        if (result is Exp.Bool && result.b == TF.True) {
+            return Exp.Bool(TF.True)
+        }
+    }
+    return Exp.Bool(TF.False)
+}
+
 fun extendEnv(params: List<Exp.Var>, args: List<Exp>, env: Env): Env {
     val thisEnv = mutableMapOf<String, Exp>()
     if (params.count() != args.count()) {
@@ -177,7 +207,7 @@ fun applyCdr(operands: List<Exp>): Exp {
         throw Error("cdr $operands")
     }
     val quotedLst = operands.first() as? Exp.Quote ?: throw Error("$operands")
-    val lst = quotedLst.value as? Datum.Lst ?: throw Error("$quotedLst")
+    val lst = quotedLst.value as? Datum.Lst ?: throw Error("$operands $quotedLst")
     return Exp.Quote(Datum.Lst(lst.lst.tail))
 }
 
@@ -193,13 +223,13 @@ fun applyCons(operands: List<Exp>): Exp {
     return Exp.Quote(Datum.Lst(listOf(carDatum) + cdrDatum))
 }
 
-fun applyNullCheck(operands: List<Exp>): Exp {
+fun applyCheckNukll(operands: List<Exp>): Exp {
     if (operands.count() != 1) {
         throw Error("null $operands")
     }
-    val quotedLst = operands.first() as? Exp.Quote ?: throw Error("$operands")
-    val lst = quotedLst.value as? Datum.Lst ?: throw Error("$quotedLst")
-    if (lst.lst.count() == 0) {
+    val quotedLst = operands.first() as? Exp.Quote ?: return Exp.Bool(TF.False)
+    val lst = quotedLst.value
+    if (lst is Datum.Lst && lst.lst.count() == 0) {
         return Exp.Bool(TF.True)
     } else {
         return Exp.Bool(TF.False)
@@ -215,8 +245,35 @@ fun applyCheckNumber(operands: List<Exp>): Exp {
     } else {
         return Exp.Bool(TF.False)
     }
-
 }
+
+fun applyCheckSymbol(operands: List<Exp>): Exp {
+    if (operands.count() != 1) {
+        throw Error("symbol?の引数が1つでない $operands")
+    }
+    if (operands.first() is Exp.Symbol) {
+        return Exp.Bool(TF.True)
+    } else {
+        return Exp.Bool(TF.False)
+    }
+}
+
+fun applyCheckPair(operands: List<Exp>): Exp {
+    if (operands.count() != 1) {
+        throw Error("pair?の引数が1つでない $operands")
+    }
+    val first = operands.first()
+    if (first is Exp.Quote) {
+        if (first.value is Datum.Lst) {
+            return Exp.Bool(TF.True)
+        } else {
+            return Exp.Bool(TF.False)
+        }
+    } else {
+        return Exp.Bool(TF.False)
+    }
+}
+
 
 fun applyEqualCheck(operands: List<Exp>): Exp {
     if (operands.count() != 2) {
@@ -229,30 +286,6 @@ fun applyEqualCheck(operands: List<Exp>): Exp {
     } else {
         return Exp.Bool(TF.False)
     }
-}
-
-fun applyAnd(operands: List<Exp>): Exp {
-    if (operands.count() < 2) {
-        throw Error("and 引数が2つ未満 $operands")
-    }
-    val head = operands.head as? Exp.Bool ?: throw Error()
-    val result = operands.tail.map {
-        val valueExp = it as? Exp.Bool ?: throw Error()
-        valueExp.b
-    }.foldRight(head.b, { a: TF, b: TF -> TFAnd(b, a) })
-    return Exp.Bool(result)
-}
-
-fun applyOr(operands: List<Exp>): Exp {
-    if (operands.count() < 2) {
-        throw Error("and 引数が2つ未満 $operands")
-    }
-    val head = operands.head as? Exp.Bool ?: throw Error()
-    val result = operands.tail.map {
-        val valueExp = it as? Exp.Bool ?: throw Error()
-        valueExp.b
-    }.foldRight(head.b, { a: TF, b: TF -> TFOr(b, a) })
-    return Exp.Bool(result)
 }
 
 fun applyGreaterThan(operands: List<Exp>): Exp {

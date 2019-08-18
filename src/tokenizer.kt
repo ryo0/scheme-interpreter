@@ -22,6 +22,8 @@ sealed class Token {
     object Else : Token()
     object Let : Token()
     object Begin : Token()
+    object And : Token()
+    object Or : Token()
 
 }
 
@@ -56,7 +58,9 @@ val keywordHash = mapOf(
     "else" to Token.Else,
     "let" to Token.Let,
     "quote" to Token.Quote,
-    "begin" to Token.Begin
+    "begin" to Token.Begin,
+    "and" to Token.And,
+    "or" to Token.Or
 )
 
 fun removeComments(str: String): String {

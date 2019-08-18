@@ -46,4 +46,6 @@ sealed class Exp {
     data class Procedure(val p: (List<Exp>) -> Exp?) : Exp()
     data class Quote(val value: Datum) : Exp()
     data class Begin(val exps: List<Exp>) : Exp()
+    data class And(val operands: List<Exp>) : Exp()
+    data class Or(val operands: List<Exp>) : Exp()
 }

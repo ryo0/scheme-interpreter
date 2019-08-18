@@ -1,5 +1,20 @@
+import java.io.File
+
+val stdLib = """
+    (define (length lst) 
+    (if (null? lst)
+    0
+    (+ 1 (length (cdr lst))))
+    )
+(define (cadr lst) (car (cdr lst)))
+(define (cddr lst) (cdr (cdr lst)))
+(define (caddr lst) (car (cddr lst)))
+(define (cdddr lst) (cdr (cddr lst)))
+    
+""".trimIndent()
+
 fun interpret(code: String): String {
-    val exp = eval(parseProgram(parseNodeList(tokenize(code))))
+    val exp = eval(parseProgram(parseNodeList(tokenize(stdLib + "\n" + code))))
     if (exp == null) {
         return ""
     } else {
@@ -76,48 +91,52 @@ class Main {
 //            val nodes07 = parseNodeList(tokenize(testCode07))
 //            println(eval(parseProgram(nodes07)))
 
-            val testCode08 = """
-                (define (len lst) 
-                    (if (null? lst)
-                    0
-                    (+ 1 (len (cdr lst))))
-                )
-                (print '(1 2 (3 4) 5 6 (7 ((8)))))
-                (print (len '(1.0 2.0 (3.0 4.0) 5.0 6.0 (7.0 ((8.0))))))
-                """.trimIndent()
+//            val testCode08 = """
+//                (define (len lst)
+//                    (if (null? lst)
+//                    0
+//                    (+ 1 (len (cdr lst))))
+//                )
+//                (print '(1 2 (3 4) 5 6 (7 ((8)))))
+//                (print (len '(1.0 2.0 (3.0 4.0) 5.0 6.0 (7.0 ((8.0))))))
+//                (print (null? 'x))
+//                (print (null? '(1)))
+//                (print (null? '()))
+//                """.trimIndent()
+//
+//            interpret(testCode08)
 
-            interpret(testCode08)
-
-            val testCode09 = """
-                (print (eq? '(- 3 2) '(- 3 2)))
-                """.trimIndent()
-
-            interpret(testCode09)
-
+//            val testCode09 = """
+//                (print (eq? '(- 3 2) '(- 3 2)))
+//                """.trimIndent()
+//
+//            interpret(testCode09)
+//
             val testCode10 = """
-                (print (> 1 2))
-                (print (> 2 1))
-                (print (< 2 1))
-                (print (< 1 2))
-                (print (cdr (list 1 '(2 3) 4)))
+                (print (and #f (error "aaa")))
+                (print (and #t #f (error "bbb")))
+                (print (and #t #t (error "ccc")))
                 """.trimIndent()
 
             interpret(testCode10)
-
-            val testCode11 = """
-(define (make-sum a1 a2)
-  (cond ((number?? a1 0) a2)
-        ((number?? a2 0) a1)
-        ((and (number? a1) (number? a2)) (+ a1 a2))
-        (else (list a1 '+ a2))))
-
-(define (number?? exp num)
-  (and (number? exp) (= exp num)))
-(print (make-sum '(x + 2) '(y + z)))
-(print (make-sum 2 1))
-                """.trimIndent()
-
-            interpret(testCode11)
+//
+//            val testCode11 = """
+//(define (make-sum a1 a2)
+//  (cond ((number?? a1 0) a2)
+//        ((number?? a2 0) a1)
+//        ((and (number? a1) (number? a2)) (+ a1 a2))
+//        (else (list a1 '+ a2))))
+//
+//(define (number?? exp num)
+//  (and (number? exp) (= exp num)))
+//(print (make-sum '(x + 2) '(y + z)))
+//(print (make-sum 2 1))
+//                """.trimIndent()
+//
+//            interpret(testCode11)
+//
+//            val deriv = File("src/deriv.scm").readText()
+//            interpret(deriv)
 
 //
 //            val testCode11 = """

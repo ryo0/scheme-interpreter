@@ -14,6 +14,8 @@
 
 (define (cadddr lst) (car (cdddr lst)))
 
+(define (>= a b) (or (> a b) (= a b)))
+
 (define nil '())
 
 (define (append lst1 lst2)

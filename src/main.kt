@@ -6,11 +6,21 @@ val stdLib = """
     0
     (+ 1 (length (cdr lst))))
     )
+
 (define (cadr lst) (car (cdr lst)))
+
 (define (cddr lst) (cdr (cdr lst)))
+
 (define (caddr lst) (car (cddr lst)))
+
 (define (cdddr lst) (cdr (cddr lst)))
-    
+
+(define nil '())
+
+(define (append lst1 lst2)
+  (if (null? lst1)
+    lst2
+    (cons (car lst1) (append (cdr lst1) lst2))))
 """.trimIndent()
 
 fun interpret(code: String): String {
@@ -119,16 +129,41 @@ class Main {
 //                """.trimIndent()
 //
 //            interpret(testCode10)
+////
+//            val testCode11 = """
+//                (print (cdr '((1))))
+//                """.trimIndent()
 //
-            val testCode11 = """
-                (print (cdr '((1))))
-                """.trimIndent()
+//            interpret(testCode11)
+//
+//            val deriv = File("src/deriv.scm").readText()
+//            interpret(deriv)
 
-            interpret(testCode11)
+//            1.0
+//            'y
+//            ((x * y) + (y * (x + 3.0)))
+//            4.0
+//            13.0
+//            (1.0 + (3.0 + (1.0 + y)))
+//            (((x * (3.0 * (x + x))) + (3.0 * x * x)) + ((y * y) + y))
+//            (1.0 + (1.0 + (((x * (3.0 * y * 5.0)) + (x * 3.0 * y * 5.0)) + (x + x))))
+//            (1.0 + ((3.0 * (x + x)) + (y + 2.0)))
+//            (1.0 + ((3.0 * (x + x)) + (1.0 + ((x + x) + 1.0))))
+//            (1.0 + ((3.0 * (x + x)) + (1.0 + ((x * (((x + x) * y) + (2.0 * (y * x)))) + ((x + x) * y * x)))))
+//            (x * ((x + x) * x))
 
-            val deriv = File("src/deriv.scm").readText()
-            interpret(deriv)
-
+            val tree = File("src/tree.scm").readText()
+            interpret(tree)
+//
+//            (7.0 (3.0 (1.0 () ()) (5.0 () ())) (9.0 () (11.0 () ())))
+//            (3.0 (1.0 () ()) (7.0 (5.0 () ()) (9.0 () ())))
+//            (5.0 (3.0 (1.0 () ()) ()) (9.0 (7.0 () ()) (11.0 () ())))
+//            (1.0 3.0 5.0 7.0 9.0 11.0)
+//            (1.0 3.0 5.0 7.0 9.0)
+//            (1.0 3.0 5.0 7.0 9.0 11.0)
+//            (1.0 3.0 5.0 7.0 9.0 11.0)
+//            (1.0 3.0 5.0 7.0 9.0)
+//            (1.0 3.0 5.0 7.0 9.0 11.0)
 //
 //            val testCode11 = """
 //                (or #t #f #f)

@@ -108,10 +108,11 @@ fun evalExp(exp: Exp, env: Env): Exp? {
                     }
                 }
                 is Exp.Var -> {
-                    val procedure = findFromEnv(operator.name, env) as? Exp.Procedure ?: throw Error()
+                    val procedure =
+                        findFromEnv(operator.name, env) as? Exp.Procedure ?: throw Error("定義されてない手続き: ${operator.name}")
 //                    println("${operator.name}, ${operands.map {
 //                        convertExpToString(
-//                            evalExp(it, env) ?: throw Error()
+//                            evalExp(it, env) ?: throw Error("$it")
 //                        )
 //                    }} ")
                     procedure.p(operands.map { evalExp(it, env) ?: throw Error("引数がnull $it") })
@@ -316,9 +317,9 @@ fun applyGreaterThan(operands: List<Exp>): Exp {
     if (operands.count() != 2) {
         throw Error("> 引数が2つでない $operands")
     }
-    val first = operands.head as? Exp.Num ?: throw Error(">に渡された値が数値ではない $operands")
-    val second = operands.tail.head as? Exp.Num ?: throw Error(">に渡された値が数値ではない $operands")
-    if (first.value > second.value) {
+    val first = convertQuoteToNum(operands.head)
+    val second = convertQuoteToNum(operands.tail.head)
+    if (first > second) {
         return Exp.Bool(TF.True)
     } else {
         return Exp.Bool(TF.False)
@@ -327,11 +328,11 @@ fun applyGreaterThan(operands: List<Exp>): Exp {
 
 fun applyLessThan(operands: List<Exp>): Exp {
     if (operands.count() != 2) {
-        throw Error("< 引数が2つでない $operands")
+        throw Error("> 引数が2つでない $operands")
     }
-    val first = operands.head as? Exp.Num ?: throw Error("<に渡された値が数値ではない $operands")
-    val second = operands.tail.head as? Exp.Num ?: throw Error("<に渡された値が数値ではない $operands")
-    if (first.value < second.value) {
+    val first = convertQuoteToNum(operands.head)
+    val second = convertQuoteToNum(operands.tail.head)
+    if (first < second) {
         return Exp.Bool(TF.True)
     } else {
         return Exp.Bool(TF.False)

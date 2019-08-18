@@ -156,6 +156,9 @@ class Main {
 
             val nodes12 = parseNodeList(tokenize(testCode12))
             println(eval(parseProgram(nodes12)))
+
+            val tree = File("src/huffman.scm").readText()
+            interpret(tree)
 //
 //            val testCode13 = """
 //                (or #f #f #f)

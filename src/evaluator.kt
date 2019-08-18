@@ -6,6 +6,7 @@ val initialEnv = mutableMapOf<String, Exp>(
     "cons" to Exp.Procedure { args: List<Exp> -> applyCons(args) },
     "null?" to Exp.Procedure { args: List<Exp> -> applyCheckNukll(args) },
     "eq?" to Exp.Procedure { args: List<Exp> -> applyEqualCheck(args) },
+    "equal?" to Exp.Procedure { args: List<Exp> -> applyEqualCheck(args) },
     "=" to Exp.Procedure { args: List<Exp> -> applyEqualCheck(args) },
     "print" to Exp.Procedure { args: List<Exp> -> applyPrint(args) },
     ">" to Exp.Procedure { args: List<Exp> -> applyGreaterThan(args) },

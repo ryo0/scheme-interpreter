@@ -1,8 +1,8 @@
 (define (length lst)
-    (if (null? lst)
+  (if (null? lst)
     0
     (+ 1 (length (cdr lst))))
-    )
+)
 
 (define (cadr lst) (car (cdr lst)))
 
@@ -11,6 +11,8 @@
 (define (caddr lst) (car (cddr lst)))
 
 (define (cdddr lst) (cdr (cddr lst)))
+
+(define (cadddr lst) (car (cdddr lst)))
 
 (define nil '())
 

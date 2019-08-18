@@ -29,7 +29,7 @@ sealed class Datum {
 
 data class CondClause(val test: Exp, val consequence: List<Exp>)
 
-data class VarExp(val name: Exp.Var, val exp: Exp)
+data class VarExp(val name: String, val exp: Exp)
 
 sealed class Exp {
     data class Op(val op: Ops) : Exp()

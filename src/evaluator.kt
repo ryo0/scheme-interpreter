@@ -93,6 +93,12 @@ fun evalExp(exp: Exp, env: Env): Exp? {
                 evalProgram(exp.body, extendEnv(exp.params, evaledArgs, env))
             }
         }
+        is Exp.Let -> {
+            evalLet(exp, env)
+        }
+        is Exp.Begin -> {
+            evalBegin(exp, env)
+        }
         is Exp.ProcedureCall -> {
             val operator = exp.operator
             val operands = exp.operands
@@ -126,6 +132,20 @@ fun evalExp(exp: Exp, env: Env): Exp? {
             null
         }
     }
+}
+
+fun evalBegin(exp: Exp.Begin, env: Env): Exp? {
+    return exp.exps.map {
+        evalExp(it, env)
+    }.last()
+}
+
+fun evalLet(exp: Exp.Let, env: Env): Exp? {
+    val letEnv = mutableMapOf<String, Exp>()
+    exp.varExps.forEach {
+        letEnv[it.name] = evalExp(it.exp, env) ?: throw Error("letの値がnull ${it.exp}")
+    }
+    return evalProgram(exp.body, Env(listOf(letEnv) + env.lst))
 }
 
 fun evalIf(exp: Exp.If, env: Env): Exp? {

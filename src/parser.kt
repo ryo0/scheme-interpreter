@@ -313,12 +313,12 @@ fun parseVarExpList(node: Node.Nodes): List<VarExp> {
         }
         val car = car(it.ns)
         val cadr = cadr(it.ns)
-        if (car is Node.Leaf && cadr is Node.Nodes) {
+        if (car is Node.Leaf) {
             val name = parseExp(car) as? Exp.Var ?: throw Error("構文エラー let $node")
             val exp = parseExp(cadr)
-            VarExp(name, exp)
+            VarExp(name.name, exp)
         } else {
-            throw Error("構文エラー let $node")
+            throw Error("構文エラー let $car, $cadr")
         }
     }
 }

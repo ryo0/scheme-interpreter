@@ -15,7 +15,6 @@ val initialEnv = mutableMapOf<String, Exp>(
     "number?" to Exp.Procedure { args: List<Exp> -> applyCheckNumber(args) },
     "symbol?" to Exp.Procedure { args: List<Exp> -> applyCheckSymbol(args) },
     "pair?" to Exp.Procedure { args: List<Exp> -> applyCheckPair(args) }
-
 )
 
 fun eval(p: Program): Exp? {
@@ -138,16 +137,18 @@ fun evalIf(exp: Exp.If, env: Env): Exp? {
 }
 
 fun evalCond(exp: Exp.Cond, env: Env): Exp? {
-    val trueCCs = exp.cc.filter { isTrue(evalExp(it.test, env)) }
-    if (trueCCs.count() == 0) {
-        val elseExp = exp.elseExp ?: throw Error("cond: else節が無い")
-        return evalExp(elseExp, env)
+    exp.cc.forEach {
+        val evalTest = evalExp(it.test, env)
+        if (isTrue(evalTest)) {
+            return it.consequence.map { consExp ->
+                evalExp(consExp, env)
+            }.last()
+        }
     }
-    var result: Exp? = null
-    trueCCs.first().consequence.forEach {
-        result = evalExp(it, env)
-    }
-    return result
+    val elseExp = exp.elseExp ?: throw Error("cond: else節が無い")
+    return evalExp(elseExp, env)
+
+
 }
 
 fun evalAnd(exp: Exp.And, env: Env): Exp? {
@@ -240,7 +241,10 @@ fun applyCheckNumber(operands: List<Exp>): Exp {
     if (operands.count() != 1) {
         throw Error("number?の引数が1つでない $operands")
     }
-    if (operands.first() is Exp.Num) {
+    val v = operands.first()
+    if (v is Exp.Num) {
+        return Exp.Bool(TF.True)
+    } else if (v is Exp.Quote && v.value is Datum.Num) {
         return Exp.Bool(TF.True)
     } else {
         return Exp.Bool(TF.False)
@@ -251,7 +255,10 @@ fun applyCheckSymbol(operands: List<Exp>): Exp {
     if (operands.count() != 1) {
         throw Error("symbol?の引数が1つでない $operands")
     }
-    if (operands.first() is Exp.Symbol) {
+    val v = operands.first()
+    if (v is Exp.Symbol) {
+        return Exp.Bool(TF.True)
+    } else if (v is Exp.Quote && v.value is Datum.Symbol) {
         return Exp.Bool(TF.True)
     } else {
         return Exp.Bool(TF.False)
@@ -329,11 +336,11 @@ fun applyError(operands: List<Exp>): Exp? {
     }
     val first = operands.first() as? Exp.Symbol ?: throw Error("errorに渡された1つめの引数が文字列でない")
     val second = if (operands.count() == 2) {
-        operands[1].toString()
+        operands[1]
     } else {
-        ""
+        Exp.Var("")
     }
-    throw Error("${first.s}  $second")
+    throw Error("${first.s}  ${convertExpToString(second)}")
 }
 
 fun applyPrint(operands: List<Exp>): Exp? {

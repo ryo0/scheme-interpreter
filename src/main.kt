@@ -112,13 +112,13 @@ class Main {
 //
 //            interpret(testCode09)
 //
-            val testCode10 = """
-                (print (and #f (error "aaa")))
-                (print (and #t #f (error "bbb")))
-                (print (and #t #t (error "ccc")))
-                """.trimIndent()
-
-            interpret(testCode10)
+//            val testCode10 = """
+//                (print (and #f (error "aaa")))
+//                (print (and #t #f (error "bbb")))
+//                (cond (#t "aaa") (else (error "bbb")))
+//                """.trimIndent()
+//
+//            interpret(testCode10)
 //
 //            val testCode11 = """
 //(define (make-sum a1 a2)
@@ -135,8 +135,8 @@ class Main {
 //
 //            interpret(testCode11)
 //
-//            val deriv = File("src/deriv.scm").readText()
-//            interpret(deriv)
+            val deriv = File("src/deriv.scm").readText()
+            interpret(deriv)
 
 //
 //            val testCode11 = """

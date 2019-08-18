@@ -39,7 +39,7 @@ fun evalProgram(p: Program, env: Env): Exp? {
 }
 
 fun isTrue(exp: Exp?): Boolean {
-    return exp != null && exp is Exp.Bool && exp.b == TF.True
+    return !(exp == null || (exp is Exp.Bool && exp.b == TF.False))
 }
 
 val OpHash = mapOf(
@@ -109,7 +109,11 @@ fun evalExp(exp: Exp, env: Env): Exp? {
                 }
                 is Exp.Var -> {
                     val procedure = findFromEnv(operator.name, env) as? Exp.Procedure ?: throw Error()
-//                    println("${operator.name}, ${operands.map { evalExp(it, env) }} ")
+//                    println("${operator.name}, ${operands.map {
+//                        convertExpToString(
+//                            evalExp(it, env) ?: throw Error()
+//                        )
+//                    }} ")
                     procedure.p(operands.map { evalExp(it, env) ?: throw Error("引数がnull $it") })
                 }
                 else -> {
@@ -186,12 +190,25 @@ fun extendEnv(params: List<Exp.Var>, args: List<Exp>, env: Env): Env {
 
 fun applyCalculate(op: Ops, operands: List<Exp>, env: Env): Exp {
     val opLambda = OpHash[op] ?: throw Error()
-    val head = evalExp(operands.head, env) as? Exp.Num ?: throw Error()
+    val head = evalExp(operands.head, env) ?: throw Error("$op に nullが渡されている")
+    val headValue = convertQuoteToNum(head)
+
     val result = operands.tail.map {
-        val valueExp = evalExp(it, env) as? Exp.Num ?: throw Error()
-        valueExp.value
-    }.foldRight(head.value, opLambda)
+        val valueExp = evalExp(it, env) ?: throw Error("$op に nullが渡されている")
+        convertQuoteToNum(valueExp)
+    }.foldRight(headValue, opLambda)
     return Exp.Num(result)
+}
+
+fun convertQuoteToNum(quote: Exp): Float {
+    return if (quote is Exp.Num) {
+        quote.value
+    } else if (quote is Exp.Quote) {
+        val exp = convertDatumToExp(quote.value)  as? Exp.Num ?: throw Error()
+        exp.value
+    } else {
+        throw Error("$quote")
+    }
 }
 
 fun applyCar(operands: List<Exp>): Exp {
@@ -399,7 +416,11 @@ fun printLstToString(lst: Datum.Lst): String {
         result += " "
     }
     result = result.slice(0 until result.length - 1)
-    result += ")"
+    if (result.count() == 0) {
+        result = "()"
+    } else {
+        result += ")"
+    }
     return result
 }
 

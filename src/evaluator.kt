@@ -4,7 +4,7 @@ val initialEnv = mutableMapOf<String, Exp>(
     "car" to Exp.Procedure { args: List<Exp> -> applyCar(args) },
     "cdr" to Exp.Procedure { args: List<Exp> -> applyCdr(args) },
     "cons" to Exp.Procedure { args: List<Exp> -> applyCons(args) },
-    "null?" to Exp.Procedure { args: List<Exp> -> applyCheckNukll(args) },
+    "null?" to Exp.Procedure { args: List<Exp> -> applyCheckNull(args) },
     "eq?" to Exp.Procedure { args: List<Exp> -> applyEqualCheck(args) },
     "equal?" to Exp.Procedure { args: List<Exp> -> applyEqualCheck(args) },
     "=" to Exp.Procedure { args: List<Exp> -> applyEqualCheck(args) },
@@ -40,7 +40,11 @@ fun evalProgram(p: Program, env: Env): Exp? {
 }
 
 fun isTrue(exp: Exp?): Boolean {
-    return !(exp == null || (exp is Exp.Bool && exp.b == TF.False))
+    if(exp == null) {
+        throw Error("true? の引数が無い")
+    }
+    val isNull = applyCheckNull(listOf(exp)) as? Exp.Bool ?: throw Error()
+    return !(isNull.b == TF.True || (exp is Exp.Bool && exp.b == TF.False))
 }
 
 val OpHash = mapOf(
@@ -284,7 +288,7 @@ fun applyCons(operands: List<Exp>): Exp {
     return Exp.Quote(Datum.Lst(listOf(carDatum) + cdrDatum))
 }
 
-fun applyCheckNukll(operands: List<Exp>): Exp {
+fun applyCheckNull(operands: List<Exp>): Exp {
     if (operands.count() != 1) {
         throw Error("null $operands")
     }

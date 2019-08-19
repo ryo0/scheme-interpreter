@@ -467,22 +467,6 @@ fun printLstToString(lst: Datum.Lst): String {
     return result
 }
 
-fun TFAnd(a: TF, b: TF): TF {
-    if (a == TF.True && b == TF.True) {
-        return TF.True
-    } else {
-        return TF.False
-    }
-}
-
-fun TFOr(a: TF, b: TF): TF {
-    if (a == TF.False && b == TF.False) {
-        return TF.False
-    } else {
-        return TF.True
-    }
-}
-
 fun convertDatumToExp(datum: Datum): Exp {
     return if (datum is Datum.Num) {
         Exp.Num(datum.value)

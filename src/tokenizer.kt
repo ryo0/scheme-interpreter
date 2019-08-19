@@ -1,3 +1,5 @@
+import java.lang.Exception
+
 sealed class Token {
     data class Num(val value: Float) : Token()
     data class Var(val name: String) : Token()
@@ -135,11 +137,15 @@ fun tokenize(inputStr: String): List<Token> {
             else -> {
                 val strFromIToLast = str.slice(i until str.length)
                 val atom = getAtom(strFromIToLast)
-                if (atom.filter { !it.isDigit() }.isEmpty()) {
+                if (atom.filter { !it.isDigit() && it != '.' }.isEmpty()) {
                     if (atom.length >= 2 && atom[0] == '0') {
                         throw Error("読めないトークン: 0始まりの2桁以上の数 $atom")
                     } else {
-                        tokens.add(Token.Num(atom.toFloat()))
+                        try {
+                            tokens.add(Token.Num(atom.toFloat()))
+                        } catch (e: Exception) {
+                            throw Error("数値に不正な値が渡されている $atom")
+                        }
                     }
                 } else if (atom in keywordHash.keys) {
                     val keyword = keywordHash[atom] ?: throw Error()

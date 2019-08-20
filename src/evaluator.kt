@@ -43,8 +43,7 @@ fun isTrue(exp: Exp?): Boolean {
     if(exp == null) {
         throw Error("true? の引数が無い")
     }
-    val isNull = applyCheckNull(listOf(exp)) as? Exp.Bool ?: throw Error()
-    return !(isNull.b == TF.True || (exp is Exp.Bool && exp.b == TF.False))
+    return !(exp is Exp.Bool && exp.b == TF.False)
 }
 
 val OpHash = mapOf(

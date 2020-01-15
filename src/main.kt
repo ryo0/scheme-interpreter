@@ -14,6 +14,13 @@ class Main {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
+//            println(getEndParenIndex("(a(a(a)a)aa)hoge"))
+//            println(getEndParenIndex("((()))hoge"))
+//            println(getEndParenIndex("(hogehoge)"))
+//            println(getQuoteString0("(x + 3) 'x))"))
+//            println(getQuoteString("(x + 3) 'x))"))
+            println(getQuoteString("x))"))
+            println("^^^^^^^^^^^^^^^^^^^")
 //            val testCode00 = """
 //                (if #t
 //                    (/ 1 3 2 2)
@@ -270,6 +277,7 @@ class Main {
 //            val node15 = parseNodeList(tokenize(test15))
 //            println(node15)
 //            println(parseProgram(node15))
+//            println(getQuoteString("((())))hoge"))
         }
     }
 }

@@ -168,7 +168,40 @@ fun getAtom(str: String): String {
     return str.slice(0 until i)
 }
 
+
+fun getEndParenIndexIter(str: String, acm: Int, counter: Int): Int {
+    if (counter == 0) {
+        return acm
+    }
+    if (str[0] == '(') {
+        return getEndParenIndexIter(str.slice(1 until str.count()), acm + 1, counter + 1)
+    }
+    if (str[0] == ')') {
+        return getEndParenIndexIter(str.slice(1 until str.count()), acm + 1, counter - 1)
+    }
+    return getEndParenIndexIter(str.slice(1 until str.count()), acm + 1, counter)
+}
+
+fun getEndParenIndex(str: String): Int {
+    // str[0]が'('であることが前提条件
+    return getEndParenIndexIter(str.slice(1 until str.count()), 0, 1)
+}
+
 fun getQuoteString(str: String): String {
+    if (str[0] == '(') {
+        val endIndex = getEndParenIndex(str)
+        return str.slice(0..endIndex)
+    }
+    var i = 0
+    var result = ""
+    while (i < str.count() && str[i] != ' ' && str[i] != '\n') {
+        result += str[i]
+        i++
+    }
+    return result
+}
+
+fun getQuoteString0(str: String): String {
     var i = 0
     var parenCounter = 0
     var result = ""

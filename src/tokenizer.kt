@@ -168,37 +168,26 @@ fun getAtom(str: String): String {
     return str.slice(0 until i)
 }
 
+fun getQuoteString(str: String): String {
+    return getQuoteStringIter(str, "", 0)
+}
 
-fun getEndParenIndexIter(str: String, acm: Int, counter: Int): Int {
-    if (counter == 0) {
+
+fun getQuoteStringIter(str: String, acm: String, counter: Int): String {
+    if (str.count() == 0) {
         return acm
     }
-    if (str[0] == '(') {
-        return getEndParenIndexIter(str.slice(1 until str.count()), acm + 1, counter + 1)
+    if (acm != "" && counter <= 0) {
+        return acm
     }
-    if (str[0] == ')') {
-        return getEndParenIndexIter(str.slice(1 until str.count()), acm + 1, counter - 1)
+    val c = str[0]
+    if (c == '(') {
+        return getQuoteStringIter(str.slice(1 until str.count()), acm + c, counter + 1)
     }
-    return getEndParenIndexIter(str.slice(1 until str.count()), acm + 1, counter)
-}
-
-fun getEndParenIndex(str: String): Int {
-    // str[0]が'('であることが前提条件
-    return getEndParenIndexIter(str.slice(1 until str.count()), 0, 1)
-}
-
-fun getQuoteString(str: String): String {
-    if (str[0] == '(') {
-        val endIndex = getEndParenIndex(str)
-        return str.slice(0..endIndex)
+    if (c == ')') {
+        return getQuoteStringIter(str.slice(1 until str.count()), acm + c, counter - 1)
     }
-    var i = 0
-    var result = ""
-    while (i < str.count() && str[i] != ' ' && str[i] != '\n') {
-        result += str[i]
-        i++
-    }
-    return result
+    return getQuoteStringIter(str.slice(1 until str.count()), acm + c, counter)
 }
 
 fun getQuoteString0(str: String): String {

@@ -14,12 +14,11 @@ class Main {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-//            println(getEndParenIndex("(a(a(a)a)aa)hoge"))
-//            println(getEndParenIndex("((()))hoge"))
-//            println(getEndParenIndex("(hogehoge)"))
-//            println(getQuoteString0("(x + 3) 'x))"))
-//            println(getQuoteString("(x + 3) 'x))"))
+            println(getQuoteString0("(x + 3) 'x))"))
+            println(getQuoteString("(x + 3) 'x))"))
             println(getQuoteString("x))"))
+            println(getQuoteString("((x + 1 + (2)))nyaa"))
+            println(getQuoteString("xxxx))"))
             println("^^^^^^^^^^^^^^^^^^^")
 //            val testCode00 = """
 //                (if #t
@@ -114,13 +113,13 @@ class Main {
 //                """.trimIndent()
 //
 //            interpret(testCode10)
-////
-//            val testCode11 = """
-//                (print (cdr '((1))))
-//                """.trimIndent()
 //
-//            interpret(testCode11)
-//
+            val testCode11 = """
+                (print (cdr '((1))))
+                """.trimIndent()
+
+            interpret(testCode11)
+
             val deriv = File("src/scm/deriv.scm").readText()
             interpret(deriv)
 
@@ -149,32 +148,32 @@ class Main {
 //            (1.0 3.0 5.0 7.0 9.0 11.0)
 //            (1.0 3.0 5.0 7.0 9.0)
 //            (1.0 3.0 5.0 7.0 9.0 11.0)
-
-            val testCode11 = """
-                (let ((x (+ 1 2)) (y (+ 3 4))) (+ x y))
-                """.trimIndent()
-
-            val nodes11 = parseNodeList(tokenize(testCode11))
-            println(eval(parseProgram(nodes11)))
 //
-            val testCode12 = """
-                (begin #t #f 1)
-                """.trimIndent()
-
-            val nodes12 = parseNodeList(tokenize(testCode12))
-            println(eval(parseProgram(nodes12)))
-
-            val huffman = File("src/scm/huffman.scm").readText()
-            interpret(huffman)
-
-            val bank = File("src/scm/bank.scm").readText()
-            interpret(bank)
-
-            val testCode01 = """
-                (print ((lambda (a) a) "b"))
-                """.trimIndent()
-
-            interpret(testCode01)
+//            val testCode11 = """
+//                (let ((x (+ 1 2)) (y (+ 3 4))) (+ x y))
+//                """.trimIndent()
+//
+//            val nodes11 = parseNodeList(tokenize(testCode11))
+//            println(eval(parseProgram(nodes11)))
+////
+//            val testCode12 = """
+//                (begin #t #f 1)
+//                """.trimIndent()
+//
+//            val nodes12 = parseNodeList(tokenize(testCode12))
+//            println(eval(parseProgram(nodes12)))
+//
+//            val huffman = File("src/scm/huffman.scm").readText()
+//            interpret(huffman)
+//
+//            val bank = File("src/scm/bank.scm").readText()
+//            interpret(bank)
+//
+//            val testCode01 = """
+//                (print ((lambda (a) a) "b"))
+//                """.trimIndent()
+//
+//            interpret(testCode01)
 
 //            val testCode0 = """
 //                (define x 0)
@@ -237,47 +236,46 @@ class Main {
 //            val node10 = parseNodeList(tokenize(testCode10))
 //            println(parseProgram(node10))
 //
-//            val test = """
-//;;;; クォート式は (quote <text-of-quotation>) の形
-//(define (a b)
-//  (c exp 'quote))
-//
-//(define (text-of-quotation exp) (cadr exp))
-//            """.trimIndent()
-//            println(tokenize(test))
-//            val node11 = parseNodeList(tokenize(test))
-//            println(node11)
-//            println(parseProgram(node11))
-//
-//            val test12 = """
-//                (define (a x) 2) (define (b y) 4)
-//            """.trimIndent()
-//            val node12 = parseNodeList(tokenize(test12))
-//            println(node12)
-//            println(parseProgram(node12))
-//
-//            val test14 = """
-//(define (mul-interval x y)
-//  (let ((p1 (* (lower-bound x) (lower-bound y)))
-//        (p2 (* (lower-bound x) (upper-bound y)))
-//        (p3 (* (upper-bound x) (lower-bound y)))
-//        (p4 (* (upper-bound x) (upper-bound y))))
-//    (make-interval (min p1 p2 p3 p4)
-//                   (max p1 p2 p3 p4)))
-//            """.trimIndent()
-//            println(tokenize(test14))
-//            val node14 = parseNodeList(tokenize(test14))
-//            println(node14)
-//            println(parseProgram(node14))
-//
-//            val test15 = """
-//                (begin (+ 1 2) (+ 3 4) 5)
-//            """.trimIndent()
-//            println(tokenize(test15))
-//            val node15 = parseNodeList(tokenize(test15))
-//            println(node15)
-//            println(parseProgram(node15))
-//            println(getQuoteString("((())))hoge"))
+            val test = """
+;;;; クォート式は (quote <text-of-quotation>) の形
+(define (a b)
+  (c exp 'quote))
+(define (text-of-quotation exp) (cadr exp))
+            """.trimIndent()
+            println(tokenize(test))
+            val node11 = parseNodeList(tokenize(test))
+            println(node11)
+            println(parseProgram(node11))
+
+            val test12 = """
+                (define (a x) 2) (define (b y) 4)
+            """.trimIndent()
+            val node12 = parseNodeList(tokenize(test12))
+            println(node12)
+            println(parseProgram(node12))
+
+            val test14 = """
+(define (mul-interval x y)
+  (let ((p1 (* (lower-bound x) (lower-bound y)))
+        (p2 (* (lower-bound x) (upper-bound y)))
+        (p3 (* (upper-bound x) (lower-bound y)))
+        (p4 (* (upper-bound x) (upper-bound y))))
+    (make-interval (min p1 p2 p3 p4)
+                   (max p1 p2 p3 p4)))
+            """.trimIndent()
+            println(tokenize(test14))
+            val node14 = parseNodeList(tokenize(test14))
+            println(node14)
+            println(parseProgram(node14))
+
+            val test15 = """
+                (begin (+ 1 2) (+ 3 4) 5)
+            """.trimIndent()
+            println(tokenize(test15))
+            val node15 = parseNodeList(tokenize(test15))
+            println(node15)
+            println(parseProgram(node15))
+            println(getQuoteString("((())))hoge"))
         }
     }
 }

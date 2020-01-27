@@ -172,22 +172,39 @@ fun getQuoteString(str: String): String {
     return getQuoteStringIter(str, "", 0)
 }
 
+fun getString(str: String): String {
+    var i = 0
+    var result = ""
+    while (i < str.count()) {
+        if (str[i] != ' ' && str[i] != '\n' && str[i] != '(' && str[i] != ')') {
+            result += str[i]
+            i++
+        } else {
+            return result
+        }
+    }
+    return result
+}
 
 fun getQuoteStringIter(str: String, acm: String, counter: Int): String {
     if (str.count() == 0) {
         return acm
     }
     if (acm != "" && counter <= 0) {
-        return acm
+        if (acm.last() == ')') {
+            return acm
+        }
+        return acm + getString(str)
     }
     val c = str[0]
+    val cdr = str.slice(1 until str.count())
     if (c == '(') {
-        return getQuoteStringIter(str.slice(1 until str.count()), acm + c, counter + 1)
+        return getQuoteStringIter(cdr, acm + c, counter + 1)
     }
     if (c == ')') {
-        return getQuoteStringIter(str.slice(1 until str.count()), acm + c, counter - 1)
+        return getQuoteStringIter(cdr, acm + c, counter - 1)
     }
-    return getQuoteStringIter(str.slice(1 until str.count()), acm + c, counter)
+    return getQuoteStringIter(cdr, acm + c, counter)
 }
 
 fun getQuoteString0(str: String): String {
